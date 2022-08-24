@@ -1,9 +1,7 @@
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_game/game/start_game_parallax.dart';
-import 'game/start_game_all.dart';
-import 'game/start_game_parallax_two.dart';
+import 'game/start_game.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,8 +11,6 @@ void main() async {
   await Flame.device.setLandscape();
 
   runApp(GameWidget(game: StartGame()));
-  // runApp(GameWidget(game: StartGameParallax()));
-  // runApp(GameWidget(game: StartGameParallax_Two()));
 }
 
 
