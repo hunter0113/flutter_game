@@ -1,29 +1,27 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 
-enum PlayerAction {
+enum MonsterAction {
   Normal,
-  Run,
-  Attack_One,
-  Attack_Two,
-  Attack_Three,
+  Walk,
+  Attack,
 }
 
-class Player extends SpriteAnimationGroupComponent<PlayerAction> with CollisionCallbacks{
+class Monster extends SpriteAnimationGroupComponent<MonsterAction> with CollisionCallbacks{
   late ShapeHitbox hitBox;
 
-  Player({
-    required Map<PlayerAction, SpriteAnimation>? animations,
+  Monster({
+    required Map<MonsterAction, SpriteAnimation>? animations,
     required Vector2 size,
     required Vector2 position,
-    required PlayerAction current,
+    required MonsterAction current,
   }) : super(
-          animations: animations,
-          size: size,
-          position: position,
-          anchor: Anchor.center,
-          current: current,
-        );
+    animations: animations,
+    size: size,
+    position: position,
+    anchor: Anchor.center,
+    current: current,
+  );
 
   @override
   Future<void> onLoad() async {

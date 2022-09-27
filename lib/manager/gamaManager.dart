@@ -4,6 +4,7 @@ import 'package:flame/sprite.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_game/role/player.dart';
 import '../button/attackButton.dart';
+import '../role/monster.dart';
 
 class GameManager {
   static final double screenWidth =
@@ -15,17 +16,23 @@ class GameManager {
   static late final AttackComponent attackButton;
 
   static late Player player;
+  static late Monster monster;
   static late ParallaxComponent parallax;
   static late final SpriteAnimation normalAnimation,
       attackAniStage_One,
       attackAniStage_Two,
       attackAniStage_Three,
-      runAnimation;
+      runAnimation,
+      monsterWalk,
+      monsterNormal,
+      monsterAttack;
+
   static bool playerFlipped = false;
   static bool isAttack = false;
   static bool nextAttackStep = false;
 
   static late SpriteSheet allSpriteSheet;
+  static late SpriteSheet monster_normal_Sheet, monster_walk_Sheet, monster_attack_Sheet;
 
   // 背景與x座標軸上的速度
   static final bgLayerInfo = {

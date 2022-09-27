@@ -1,14 +1,16 @@
 import 'package:flame/components.dart';
 import 'package:flame/game.dart';
+import 'package:flame/input.dart';
 import 'package:flame/palette.dart';
 import 'package:flame/parallax.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_game/manager/gamaManager.dart';
+import 'package:flutter_game/role/monster.dart';
 import 'package:flutter_game/role/player.dart';
 import '../button/attackButton.dart';
 
-class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollisionDetection {
+class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollisionDetection, PanDetector {
   @override
   Future<void> onLoad() async {
     super.onLoad();
@@ -33,7 +35,9 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
     GameManager.parallax.parallax?.baseVelocity = Vector2.zero();
     add(GameManager.parallax);
 
-    // All Image
+    /**
+     * Hero
+     */
     const String src = 'hero.png';
     await images.load(src);
     var image = images.fromCache(src);
@@ -114,6 +118,84 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
     );
 
     add(GameManager.player);
+
+
+    /**
+     * Monster
+     */
+    const String monster_normal_Src = 'monster_normal.png';
+    await images.load(monster_normal_Src);
+    var monster_normal_Image = images.fromCache(monster_normal_Src);
+    GameManager.monster_normal_Sheet = SpriteSheet.fromColumnsAndRows(
+      image: monster_normal_Image,
+      columns: 10,
+      rows: 1,
+    );
+
+    // 待機狀態
+    List<Sprite> monster_normal_Sprites =
+    GameManager.monster_normal_Sheet.getRowSprites(row: 0, start: 0, count: 10);
+    GameManager.monsterNormal = SpriteAnimation.spriteList(
+      monster_normal_Sprites,
+      stepTime: 0.1,
+      loop: true,
+    );
+
+    const String monster_walk_Src = 'monster_walk.png';
+    await images.load(monster_walk_Src);
+    var monster_walk_Image = images.fromCache(monster_walk_Src);
+    GameManager.monster_walk_Sheet = SpriteSheet.fromColumnsAndRows(
+      image: monster_walk_Image,
+      columns: 9,
+      rows: 1,
+    );
+
+    // 走路
+    List<Sprite> monster_walk_Sprites =
+    GameManager.monster_walk_Sheet.getRowSprites(row: 0, start: 0, count: 9);
+    GameManager.monsterWalk = SpriteAnimation.spriteList(
+      monster_walk_Sprites,
+      stepTime: 0.1,
+      loop: true,
+    );
+
+
+    const String monster_attack_Src = 'monster_attack.png';
+    await images.load(monster_attack_Src);
+    var monster_attack_Image = images.fromCache(monster_attack_Src);
+    GameManager.monster_attack_Sheet = SpriteSheet.fromColumnsAndRows(
+      image: monster_attack_Image,
+      columns: 12,
+      rows: 1,
+    );
+
+    // 攻擊
+    List<Sprite> monster_attack_Sprites =
+    GameManager.monster_attack_Sheet.getRowSprites(row: 0, start: 0, count: 12);
+    GameManager.monsterAttack = SpriteAnimation.spriteList(
+      monster_attack_Sprites,
+      stepTime: 0.1,
+      loop: true,
+    );
+
+
+    /**
+     * Monster
+     */
+    GameManager.monster = Monster(
+      animations: {
+        MonsterAction.Normal: GameManager.monsterNormal,
+        MonsterAction.Walk: GameManager.monsterWalk,
+        MonsterAction.Attack: GameManager.monsterAttack,
+      },
+      current: MonsterAction.Attack,
+      position: Vector2(
+          GameManager.screenWidth * 0.8, GameManager.screenHeight * 0.8),
+      size: Vector2(50, 37) * 2,
+    );
+
+    add(GameManager.monster);
+
 
     // 焦點
     camera.followComponent(GameManager.player,
