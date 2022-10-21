@@ -1,15 +1,18 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 
+import '../manager/gamaManager.dart';
+
 enum PlayerAction {
-  Normal,
-  Run,
-  Attack_One,
-  Attack_Two,
-  Attack_Three,
+  NORMAL,
+  RUN,
+  ATTACK_ONE,
+  ATTACK_TWO,
+  ATTACK_THREE,
 }
 
-class Player extends SpriteAnimationGroupComponent<PlayerAction> with CollisionCallbacks{
+class Player extends SpriteAnimationGroupComponent<PlayerAction>
+    with CollisionCallbacks {
   late ShapeHitbox hitBox;
 
   Player({
@@ -28,10 +31,7 @@ class Player extends SpriteAnimationGroupComponent<PlayerAction> with CollisionC
   @override
   Future<void> onLoad() async {
     // debugMode
-    add(RectangleHitbox()..debugMode = true);
-
-    hitBox = RectangleHitbox();
-    add(hitBox);
+    add(CircleHitbox()..debugMode = true);
   }
 
   @override
@@ -41,15 +41,31 @@ class Player extends SpriteAnimationGroupComponent<PlayerAction> with CollisionC
 
   @override
   void onCollisionStart(
-      Set<Vector2> intersectionPoints,
-      PositionComponent other,
-      ) {
+    Set<Vector2> intersectionPoints,
+    PositionComponent other,
+  ) {
     super.onCollisionStart(intersectionPoints, other);
+
+    print("onCollisionStart start");
+    if(other.position.x > GameManager.player.x){
+      print("isRight true");
+      GameManager.isRightCollisionBlock = true;
+      return;
+    }
+
+    print("isLeft true");
+    GameManager.isLeftCollisionBlock = true;
   }
 
   @override
   void onCollisionEnd(PositionComponent other) {
     super.onCollisionEnd(other);
-  }
 
+    print("onCollisionEnd start");
+    if(other.position.x > GameManager.player.x){
+      GameManager.isRightCollisionBlock = false;
+      return;
+    }
+    GameManager.isLeftCollisionBlock = false;
+  }
 }

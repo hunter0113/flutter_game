@@ -25,14 +25,18 @@ class GameManager {
       runAnimation,
       monsterWalk,
       monsterNormal,
-      monsterAttack;
+      monsterAttack,
+      monsterDeath;
 
   static bool playerFlipped = false;
   static bool isAttack = false;
   static bool nextAttackStep = false;
 
+  static bool isLeftCollisionBlock = false;
+  static bool isRightCollisionBlock = false;
+
   static late SpriteSheet allSpriteSheet;
-  static late SpriteSheet monster_normal_Sheet, monster_walk_Sheet, monster_attack_Sheet;
+  static late SpriteSheet monster_normal_Sheet, monster_walk_Sheet, monster_attack_Sheet, monster_death_Sheet;
 
   // 背景與x座標軸上的速度
   static final bgLayerInfo = {

@@ -2,12 +2,14 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 
 enum MonsterAction {
-  Normal,
-  Walk,
-  Attack,
+  NORMAL,
+  WALK,
+  ATTACK,
+  DEATH
 }
 
-class Monster extends SpriteAnimationGroupComponent<MonsterAction> with CollisionCallbacks{
+class Monster extends SpriteAnimationGroupComponent<MonsterAction>
+    with CollisionCallbacks {
   late ShapeHitbox hitBox;
 
   Monster({
@@ -16,20 +18,17 @@ class Monster extends SpriteAnimationGroupComponent<MonsterAction> with Collisio
     required Vector2 position,
     required MonsterAction current,
   }) : super(
-    animations: animations,
-    size: size,
-    position: position,
-    anchor: Anchor.center,
-    current: current,
-  );
+          animations: animations,
+          size: size,
+          position: position,
+          anchor: Anchor.center,
+          current: current,
+        );
 
   @override
   Future<void> onLoad() async {
     // debugMode
-    add(RectangleHitbox()..debugMode = true);
-
-    hitBox = RectangleHitbox();
-    add(hitBox);
+    add(CircleHitbox()..debugMode = true);
   }
 
   @override
@@ -39,15 +38,16 @@ class Monster extends SpriteAnimationGroupComponent<MonsterAction> with Collisio
 
   @override
   void onCollisionStart(
-      Set<Vector2> intersectionPoints,
-      PositionComponent other,
-      ) {
+    Set<Vector2> intersectionPoints,
+    PositionComponent other,
+  ) {
     super.onCollisionStart(intersectionPoints, other);
+    // TODO
   }
 
   @override
   void onCollisionEnd(PositionComponent other) {
     super.onCollisionEnd(other);
+    // TODO
   }
-
 }

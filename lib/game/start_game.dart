@@ -10,7 +10,12 @@ import 'package:flutter_game/role/monster.dart';
 import 'package:flutter_game/role/player.dart';
 import '../button/attackButton.dart';
 
-class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollisionDetection, PanDetector {
+class StartGame extends FlameGame
+    with HasDraggables, HasTappables, HasCollisionDetection, PanDetector {
+
+  var backGroundBaseVelocity = 3.0;
+  var playerSpeed = 150.0;
+
   @override
   Future<void> onLoad() async {
     super.onLoad();
@@ -28,7 +33,7 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
     GameManager.parallax = ParallaxComponent(
       parallax: Parallax(
         await Future.wait(layers),
-        baseVelocity: Vector2(5, 0),
+        baseVelocity: Vector2(backGroundBaseVelocity, 0),
       ),
     );
 
@@ -36,9 +41,9 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
     add(GameManager.parallax);
 
     /**
-     * Hero
+     * Player
      */
-    const String src = 'hero.png';
+    const String src = 'player.png';
     await images.load(src);
     var image = images.fromCache(src);
     GameManager.allSpriteSheet = SpriteSheet.fromColumnsAndRows(
@@ -75,7 +80,8 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
 
     List<Sprite> attackSprites_Three =
         GameManager.allSpriteSheet.getRowSprites(row: 7, start: 4, count: 3);
-    attackSprites_Three.addAll(GameManager.allSpriteSheet.getRowSprites(row: 8, start: 0, count: 3));
+    attackSprites_Three.addAll(
+        GameManager.allSpriteSheet.getRowSprites(row: 8, start: 0, count: 3));
     GameManager.attackAniStage_Three = SpriteAnimation.spriteList(
       attackSprites_Three,
       stepTime: 0.1,
@@ -105,20 +111,19 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
      */
     GameManager.player = Player(
       animations: {
-        PlayerAction.Normal: GameManager.normalAnimation,
-        PlayerAction.Run: GameManager.runAnimation,
-        PlayerAction.Attack_One: GameManager.attackAniStage_One,
-        PlayerAction.Attack_Two: GameManager.attackAniStage_Two,
-        PlayerAction.Attack_Three: GameManager.attackAniStage_Three,
+        PlayerAction.NORMAL: GameManager.normalAnimation,
+        PlayerAction.RUN: GameManager.runAnimation,
+        PlayerAction.ATTACK_ONE: GameManager.attackAniStage_One,
+        PlayerAction.ATTACK_TWO: GameManager.attackAniStage_Two,
+        PlayerAction.ATTACK_THREE: GameManager.attackAniStage_Three,
       },
-      current: PlayerAction.Normal,
+      current: PlayerAction.NORMAL,
       position: Vector2(
           GameManager.screenWidth * 0.3, GameManager.screenHeight * 0.8),
       size: Vector2(50, 37) * 2,
     );
 
     add(GameManager.player);
-
 
     /**
      * Monster
@@ -133,14 +138,16 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
     );
 
     // 待機狀態
-    List<Sprite> monster_normal_Sprites =
-    GameManager.monster_normal_Sheet.getRowSprites(row: 0, start: 0, count: 10);
+    List<Sprite> monster_normal_Sprites = GameManager.monster_normal_Sheet
+        .getRowSprites(row: 0, start: 0, count: 10);
     GameManager.monsterNormal = SpriteAnimation.spriteList(
       monster_normal_Sprites,
       stepTime: 0.1,
       loop: true,
     );
 
+
+    // 走路
     const String monster_walk_Src = 'monster_walk.png';
     await images.load(monster_walk_Src);
     var monster_walk_Image = images.fromCache(monster_walk_Src);
@@ -150,9 +157,8 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
       rows: 1,
     );
 
-    // 走路
-    List<Sprite> monster_walk_Sprites =
-    GameManager.monster_walk_Sheet.getRowSprites(row: 0, start: 0, count: 9);
+    List<Sprite> monster_walk_Sprites = GameManager.monster_walk_Sheet
+        .getRowSprites(row: 0, start: 0, count: 9);
     GameManager.monsterWalk = SpriteAnimation.spriteList(
       monster_walk_Sprites,
       stepTime: 0.1,
@@ -160,6 +166,7 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
     );
 
 
+    // 攻擊
     const String monster_attack_Src = 'monster_attack.png';
     await images.load(monster_attack_Src);
     var monster_attack_Image = images.fromCache(monster_attack_Src);
@@ -169,9 +176,8 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
       rows: 1,
     );
 
-    // 攻擊
-    List<Sprite> monster_attack_Sprites =
-    GameManager.monster_attack_Sheet.getRowSprites(row: 0, start: 0, count: 12);
+    List<Sprite> monster_attack_Sprites = GameManager.monster_attack_Sheet
+        .getRowSprites(row: 0, start: 0, count: 12);
     GameManager.monsterAttack = SpriteAnimation.spriteList(
       monster_attack_Sprites,
       stepTime: 0.1,
@@ -179,23 +185,43 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
     );
 
 
+    // 死去
+    const String monster_death_Src = 'monster_death.png';
+    await images.load(monster_death_Src);
+    var monster_death_Image = images.fromCache(monster_death_Src);
+    GameManager.monster_death_Sheet = SpriteSheet.fromColumnsAndRows(
+      image: monster_death_Image,
+      columns: 14,
+      rows: 1,
+    );
+
+    List<Sprite> monster_death_Sprites = GameManager.monster_death_Sheet
+        .getRowSprites(row: 0, start: 0, count: 12);
+    GameManager.monsterDeath = SpriteAnimation.spriteList(
+      monster_death_Sprites,
+      stepTime: 0.1,
+      loop: false,
+    );
+
+
+
     /**
      * Monster
      */
     GameManager.monster = Monster(
       animations: {
-        MonsterAction.Normal: GameManager.monsterNormal,
-        MonsterAction.Walk: GameManager.monsterWalk,
-        MonsterAction.Attack: GameManager.monsterAttack,
+        MonsterAction.NORMAL: GameManager.monsterNormal,
+        MonsterAction.WALK: GameManager.monsterWalk,
+        MonsterAction.ATTACK: GameManager.monsterAttack,
+        MonsterAction.DEATH: GameManager.monsterDeath,
       },
-      current: MonsterAction.Attack,
+      current: MonsterAction.NORMAL,
       position: Vector2(
           GameManager.screenWidth * 0.8, GameManager.screenHeight * 0.8),
-      size: Vector2(50, 37) * 2,
+      size: Vector2(48, 37) * 2,
     );
 
     add(GameManager.monster);
-
 
     // 焦點
     camera.followComponent(GameManager.player,
@@ -230,31 +256,31 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
     bool moveLeft = GameManager.joystick.relativeDelta[0] < 0;
     bool moveRight = GameManager.joystick.relativeDelta[0] > 0;
 
-    double playerVectorX = (GameManager.joystick.relativeDelta * 300 * dt)[0];
-    double playerVectorY = (GameManager.joystick.relativeDelta * 300 * dt)[1];
+    double playerVectorX = (GameManager.joystick.relativeDelta * playerSpeed * dt)[0];
+    double playerVectorY = (GameManager.joystick.relativeDelta * playerSpeed * dt)[1];
 
-    if ((player.current == PlayerAction.Attack_One ||
-            player.current == PlayerAction.Attack_Two ||
-            player.current == PlayerAction.Attack_Three) &&
+    if ((player.current == PlayerAction.ATTACK_ONE ||
+            player.current == PlayerAction.ATTACK_TWO ||
+            player.current == PlayerAction.ATTACK_THREE) &&
         player.animation!.done()) {
       player.animation!.reset();
 
-      if(GameManager.nextAttackStep){
+      if (GameManager.nextAttackStep) {
         switch (GameManager.player.current) {
-          case PlayerAction.Attack_One:
-            GameManager.player.current = PlayerAction.Attack_Two;
+          case PlayerAction.ATTACK_ONE:
+            GameManager.player.current = PlayerAction.ATTACK_TWO;
             break;
 
-          case PlayerAction.Attack_Two:
-            GameManager.player.current = PlayerAction.Attack_Three;
+          case PlayerAction.ATTACK_TWO:
+            GameManager.player.current = PlayerAction.ATTACK_THREE;
             break;
 
-          case PlayerAction.Attack_Three:
-            GameManager.player.current = PlayerAction.Attack_One;
+          case PlayerAction.ATTACK_THREE:
+            GameManager.player.current = PlayerAction.ATTACK_ONE;
             break;
 
           default:
-            GameManager.player.current = PlayerAction.Attack_One;
+            GameManager.player.current = PlayerAction.ATTACK_ONE;
             break;
         }
 
@@ -271,9 +297,15 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
 
     // 透過joystick 讓角色進行x軸上的位移
     if (!GameManager.joystick.delta.isZero()) {
-      player.current = PlayerAction.Run;
+      player.current = PlayerAction.RUN;
 
-      if ((moveLeft && player.x > 0) || (moveRight && player.x < size[0])) {
+      if (moveLeft && player.x > 0 && !GameManager.isLeftCollisionBlock) {
+        player.position.add(Vector2(playerVectorX, 0));
+      }
+
+      if (moveRight &&
+          player.x < size[0] &&
+          !GameManager.isRightCollisionBlock) {
         player.position.add(Vector2(playerVectorX, 0));
       }
 
@@ -289,17 +321,18 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
       }
 
       // 背景左右翻轉
-      if (moveRight) {
-        GameManager.parallax.parallax?.baseVelocity = Vector2(10, 0);
-        return;
+      if (moveRight && !GameManager.isRightCollisionBlock) {
+        GameManager.parallax.parallax?.baseVelocity = Vector2(backGroundBaseVelocity, 0);
+      } else if (moveLeft && !GameManager.isLeftCollisionBlock) {
+        GameManager.parallax.parallax?.baseVelocity = Vector2(-backGroundBaseVelocity, 0);
+      } else {
+        GameManager.parallax.parallax?.baseVelocity = Vector2.zero();
       }
-      GameManager.parallax.parallax?.baseVelocity = Vector2(-10, 0);
       return;
     }
 
     if (!GameManager.isAttack) {
-      // 不動
-      player.current = PlayerAction.Normal;
+      player.current = PlayerAction.NORMAL;
       GameManager.parallax.parallax?.baseVelocity = Vector2.zero();
     }
   }
