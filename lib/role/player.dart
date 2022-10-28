@@ -1,6 +1,11 @@
+import 'dart:ui';
+
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flutter/material.dart';
 
+import '../extension/Liveable.dart';
+import '../game/start_game.dart';
 import '../manager/gamaManager.dart';
 
 enum PlayerAction {
@@ -12,7 +17,7 @@ enum PlayerAction {
 }
 
 class Player extends SpriteAnimationGroupComponent<PlayerAction>
-    with CollisionCallbacks {
+    with CollisionCallbacks, Liveable {
   late ShapeHitbox hitBox;
 
   Player({
@@ -31,7 +36,10 @@ class Player extends SpriteAnimationGroupComponent<PlayerAction>
   @override
   Future<void> onLoad() async {
     // debugMode
-    add(CircleHitbox()..debugMode = true);
+    // add(CircleHitbox()..debugMode = true);
+    add(CircleHitbox());
+
+    initBloodBar(lifeColor: Colors.blue, lifePoint: 1000);
   }
 
   @override
@@ -46,14 +54,11 @@ class Player extends SpriteAnimationGroupComponent<PlayerAction>
   ) {
     super.onCollisionStart(intersectionPoints, other);
 
-    print("onCollisionStart start");
-    if(other.position.x > GameManager.player.x){
-      print("isRight true");
+    if (other.position.x > StartGame.player.x) {
       GameManager.isRightCollisionBlock = true;
       return;
     }
 
-    print("isLeft true");
     GameManager.isLeftCollisionBlock = true;
   }
 
@@ -62,7 +67,7 @@ class Player extends SpriteAnimationGroupComponent<PlayerAction>
     super.onCollisionEnd(other);
 
     print("onCollisionEnd start");
-    if(other.position.x > GameManager.player.x){
+    if (other.position.x > StartGame.player.x) {
       GameManager.isRightCollisionBlock = false;
       return;
     }

@@ -2,6 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flame/input.dart';
 import 'package:flutter_game/manager/gamaManager.dart';
 
+import '../game/start_game.dart';
 import '../role/player.dart';
 
 class AttackComponent extends SpriteComponent with Tappable {
@@ -17,9 +18,9 @@ class AttackComponent extends SpriteComponent with Tappable {
   bool onTapDown(TapDownInfo event) {
 
     GameManager.isAttack = true;
-    GameManager.parallax.parallax?.baseVelocity = Vector2.zero();
+    StartGame.parallax.parallax?.baseVelocity = Vector2.zero();
 
-    switch (GameManager.player.current) {
+    switch (StartGame.player.current) {
       case PlayerAction.ATTACK_ONE:
         GameManager.nextAttackStep = true;
         break;
@@ -33,7 +34,7 @@ class AttackComponent extends SpriteComponent with Tappable {
         break;
 
       default:
-        GameManager.player.current = PlayerAction.ATTACK_ONE;
+        StartGame.player.current = PlayerAction.ATTACK_ONE;
         break;
     }
 

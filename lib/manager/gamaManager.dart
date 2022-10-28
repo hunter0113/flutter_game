@@ -15,9 +15,6 @@ class GameManager {
   static late final JoystickComponent joystick;
   static late final AttackComponent attackButton;
 
-  static late Player player;
-  static late Monster monster;
-  static late ParallaxComponent parallax;
   static late final SpriteAnimation normalAnimation,
       attackAniStage_One,
       attackAniStage_Two,
@@ -34,9 +31,8 @@ class GameManager {
 
   static bool isLeftCollisionBlock = false;
   static bool isRightCollisionBlock = false;
+  static bool causeDamage = false;
 
-  static late SpriteSheet allSpriteSheet;
-  static late SpriteSheet monster_normal_Sheet, monster_walk_Sheet, monster_attack_Sheet, monster_death_Sheet;
 
   // 背景與x座標軸上的速度
   static final bgLayerInfo = {

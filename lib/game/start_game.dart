@@ -12,9 +12,18 @@ import '../button/attackButton.dart';
 
 class StartGame extends FlameGame
     with HasDraggables, HasTappables, HasCollisionDetection, PanDetector {
-
   var backGroundBaseVelocity = 3.0;
   var playerSpeed = 150.0;
+  int ZERO = 0;
+
+  static late ParallaxComponent parallax;
+  static late Player player;
+  static late Monster monster;
+  static late SpriteSheet allSpriteSheet,
+      monster_normal_Sheet,
+      monster_walk_Sheet,
+      monster_attack_Sheet,
+      monster_death_Sheet;
 
   @override
   Future<void> onLoad() async {
@@ -26,19 +35,19 @@ class StartGame extends FlameGame
     final layers = GameManager.bgLayerInfo.entries.map(
       (entry) => loadParallaxLayer(
         ParallaxImageData(entry.key),
-        velocityMultiplier: Vector2(entry.value, 0.0),
+        velocityMultiplier: Vector2(entry.value, 0),
       ),
     );
 
-    GameManager.parallax = ParallaxComponent(
+    parallax = ParallaxComponent(
       parallax: Parallax(
         await Future.wait(layers),
         baseVelocity: Vector2(backGroundBaseVelocity, 0),
       ),
     );
 
-    GameManager.parallax.parallax?.baseVelocity = Vector2.zero();
-    add(GameManager.parallax);
+    parallax.parallax?.baseVelocity = Vector2.zero();
+    add(parallax);
 
     /**
      * Player
@@ -46,7 +55,7 @@ class StartGame extends FlameGame
     const String src = 'player.png';
     await images.load(src);
     var image = images.fromCache(src);
-    GameManager.allSpriteSheet = SpriteSheet.fromColumnsAndRows(
+    allSpriteSheet = SpriteSheet.fromColumnsAndRows(
       image: image,
       columns: 7,
       rows: 18,
@@ -54,7 +63,7 @@ class StartGame extends FlameGame
 
     // 待機狀態
     List<Sprite> normalSprites =
-        GameManager.allSpriteSheet.getRowSprites(row: 0, start: 0, count: 4);
+        allSpriteSheet.getRowSprites(row: ZERO, start: ZERO, count: 4);
     GameManager.normalAnimation = SpriteAnimation.spriteList(
       normalSprites,
       stepTime: 0.2,
@@ -63,28 +72,28 @@ class StartGame extends FlameGame
 
     // 攻擊
     List<Sprite> attackSprites_One =
-        GameManager.allSpriteSheet.getRowSprites(row: 6, start: 0, count: 6);
+        allSpriteSheet.getRowSprites(row: 6, start: ZERO, count: 6);
     GameManager.attackAniStage_One = SpriteAnimation.spriteList(
       attackSprites_One,
-      stepTime: 0.1,
+      stepTime: 0.08,
       loop: false,
     );
 
     List<Sprite> attackSprites_Two =
-        GameManager.allSpriteSheet.getRowSprites(row: 7, start: 0, count: 4);
+        allSpriteSheet.getRowSprites(row: 7, start: ZERO, count: 4);
     GameManager.attackAniStage_Two = SpriteAnimation.spriteList(
       attackSprites_Two,
-      stepTime: 0.1,
+      stepTime: 0.08,
       loop: false,
     );
 
     List<Sprite> attackSprites_Three =
-        GameManager.allSpriteSheet.getRowSprites(row: 7, start: 4, count: 3);
-    attackSprites_Three.addAll(
-        GameManager.allSpriteSheet.getRowSprites(row: 8, start: 0, count: 3));
+        allSpriteSheet.getRowSprites(row: 7, start: 4, count: 3);
+    attackSprites_Three
+        .addAll(allSpriteSheet.getRowSprites(row: 8, start: ZERO, count: 3));
     GameManager.attackAniStage_Three = SpriteAnimation.spriteList(
       attackSprites_Three,
-      stepTime: 0.1,
+      stepTime: 0.08,
       loop: false,
     );
 
@@ -99,7 +108,7 @@ class StartGame extends FlameGame
     );
 
     List<Sprite> runSprites =
-        runSheet.getRowSprites(row: 0, start: 0, count: 6);
+        runSheet.getRowSprites(row: ZERO, start: ZERO, count: 6);
     GameManager.runAnimation = SpriteAnimation.spriteList(
       runSprites,
       stepTime: 0.1,
@@ -109,7 +118,7 @@ class StartGame extends FlameGame
     /**
      * Player
      */
-    GameManager.player = Player(
+    player = Player(
       animations: {
         PlayerAction.NORMAL: GameManager.normalAnimation,
         PlayerAction.RUN: GameManager.runAnimation,
@@ -123,7 +132,7 @@ class StartGame extends FlameGame
       size: Vector2(50, 37) * 2,
     );
 
-    add(GameManager.player);
+    add(player);
 
     /**
      * Monster
@@ -131,84 +140,79 @@ class StartGame extends FlameGame
     const String monster_normal_Src = 'monster_normal.png';
     await images.load(monster_normal_Src);
     var monster_normal_Image = images.fromCache(monster_normal_Src);
-    GameManager.monster_normal_Sheet = SpriteSheet.fromColumnsAndRows(
+    monster_normal_Sheet = SpriteSheet.fromColumnsAndRows(
       image: monster_normal_Image,
       columns: 10,
       rows: 1,
     );
 
     // 待機狀態
-    List<Sprite> monster_normal_Sprites = GameManager.monster_normal_Sheet
-        .getRowSprites(row: 0, start: 0, count: 10);
+    List<Sprite> monster_normal_Sprites =
+        monster_normal_Sheet.getRowSprites(row: ZERO, start: ZERO, count: 10);
     GameManager.monsterNormal = SpriteAnimation.spriteList(
       monster_normal_Sprites,
       stepTime: 0.1,
       loop: true,
     );
 
-
     // 走路
     const String monster_walk_Src = 'monster_walk.png';
     await images.load(monster_walk_Src);
     var monster_walk_Image = images.fromCache(monster_walk_Src);
-    GameManager.monster_walk_Sheet = SpriteSheet.fromColumnsAndRows(
+    monster_walk_Sheet = SpriteSheet.fromColumnsAndRows(
       image: monster_walk_Image,
       columns: 9,
       rows: 1,
     );
 
-    List<Sprite> monster_walk_Sprites = GameManager.monster_walk_Sheet
-        .getRowSprites(row: 0, start: 0, count: 9);
+    List<Sprite> monster_walk_Sprites =
+        monster_walk_Sheet.getRowSprites(row: ZERO, start: ZERO, count: 9);
     GameManager.monsterWalk = SpriteAnimation.spriteList(
       monster_walk_Sprites,
       stepTime: 0.1,
       loop: true,
     );
 
-
     // 攻擊
     const String monster_attack_Src = 'monster_attack.png';
     await images.load(monster_attack_Src);
     var monster_attack_Image = images.fromCache(monster_attack_Src);
-    GameManager.monster_attack_Sheet = SpriteSheet.fromColumnsAndRows(
+    monster_attack_Sheet = SpriteSheet.fromColumnsAndRows(
       image: monster_attack_Image,
       columns: 12,
       rows: 1,
     );
 
-    List<Sprite> monster_attack_Sprites = GameManager.monster_attack_Sheet
-        .getRowSprites(row: 0, start: 0, count: 12);
+    List<Sprite> monster_attack_Sprites =
+        monster_attack_Sheet.getRowSprites(row: ZERO, start: ZERO, count: 12);
     GameManager.monsterAttack = SpriteAnimation.spriteList(
       monster_attack_Sprites,
       stepTime: 0.1,
       loop: true,
     );
 
-
     // 死去
     const String monster_death_Src = 'monster_death.png';
     await images.load(monster_death_Src);
     var monster_death_Image = images.fromCache(monster_death_Src);
-    GameManager.monster_death_Sheet = SpriteSheet.fromColumnsAndRows(
+    monster_death_Sheet = SpriteSheet.fromColumnsAndRows(
       image: monster_death_Image,
       columns: 14,
       rows: 1,
     );
 
-    List<Sprite> monster_death_Sprites = GameManager.monster_death_Sheet
-        .getRowSprites(row: 0, start: 0, count: 12);
+    List<Sprite> monster_death_Sprites =
+        monster_death_Sheet.getRowSprites(row: ZERO, start: ZERO, count: 12);
     GameManager.monsterDeath = SpriteAnimation.spriteList(
       monster_death_Sprites,
       stepTime: 0.1,
       loop: false,
     );
 
-
-
     /**
      * Monster
      */
-    GameManager.monster = Monster(
+    monster = Monster(
       animations: {
         MonsterAction.NORMAL: GameManager.monsterNormal,
         MonsterAction.WALK: GameManager.monsterWalk,
@@ -221,11 +225,10 @@ class StartGame extends FlameGame
       size: Vector2(48, 37) * 2,
     );
 
-    add(GameManager.monster);
+    add(monster);
 
     // 焦點
-    camera.followComponent(GameManager.player,
-        relativeOffset: const Anchor(0.3, 0.8));
+    camera.followComponent(player, relativeOffset: const Anchor(0.3, 0.8));
 
     /**
      * JoyStick
@@ -251,42 +254,52 @@ class StartGame extends FlameGame
   void update(double dt) {
     super.update(dt);
 
-    Player player = GameManager.player;
+    bool moveLeft = GameManager.joystick.relativeDelta[0] < ZERO;
+    bool moveRight = GameManager.joystick.relativeDelta[0] > ZERO;
 
-    bool moveLeft = GameManager.joystick.relativeDelta[0] < 0;
-    bool moveRight = GameManager.joystick.relativeDelta[0] > 0;
+    double playerVectorX =
+        (GameManager.joystick.relativeDelta * playerSpeed * dt)[0];
+    double playerVectorY =
+        (GameManager.joystick.relativeDelta * playerSpeed * dt)[1];
 
-    double playerVectorX = (GameManager.joystick.relativeDelta * playerSpeed * dt)[0];
-    double playerVectorY = (GameManager.joystick.relativeDelta * playerSpeed * dt)[1];
+    if (monster.current == MonsterAction.DEATH && monster.animation!.done()) {
+      monster.removeFromParent();
+    }
 
-    if ((player.current == PlayerAction.ATTACK_ONE ||
-            player.current == PlayerAction.ATTACK_TWO ||
-            player.current == PlayerAction.ATTACK_THREE) &&
-        player.animation!.done()) {
+    if (GameManager.isAttack &&
+        (GameManager.isRightCollisionBlock ||
+            GameManager.isLeftCollisionBlock) &&
+        !GameManager.causeDamage) {
+      GameManager.causeDamage = true;
+      monster.loss(100);
+    }
+
+    if ((GameManager.isAttack) && player.animation!.done()) {
       player.animation!.reset();
+      GameManager.causeDamage = false;
 
       if (GameManager.nextAttackStep) {
-        switch (GameManager.player.current) {
+        switch (player.current) {
           case PlayerAction.ATTACK_ONE:
-            GameManager.player.current = PlayerAction.ATTACK_TWO;
+            player.current = PlayerAction.ATTACK_TWO;
             break;
 
           case PlayerAction.ATTACK_TWO:
-            GameManager.player.current = PlayerAction.ATTACK_THREE;
+            player.current = PlayerAction.ATTACK_THREE;
             break;
 
           case PlayerAction.ATTACK_THREE:
-            GameManager.player.current = PlayerAction.ATTACK_ONE;
+            player.current = PlayerAction.ATTACK_ONE;
             break;
 
           default:
-            GameManager.player.current = PlayerAction.ATTACK_ONE;
+            player.current = PlayerAction.ATTACK_ONE;
             break;
         }
-
         GameManager.nextAttackStep = false;
         return;
       }
+
       GameManager.isAttack = false;
       return;
     }
@@ -322,18 +335,18 @@ class StartGame extends FlameGame
 
       // 背景左右翻轉
       if (moveRight && !GameManager.isRightCollisionBlock) {
-        GameManager.parallax.parallax?.baseVelocity = Vector2(backGroundBaseVelocity, 0);
+        parallax.parallax?.baseVelocity = Vector2(backGroundBaseVelocity, 0);
       } else if (moveLeft && !GameManager.isLeftCollisionBlock) {
-        GameManager.parallax.parallax?.baseVelocity = Vector2(-backGroundBaseVelocity, 0);
+        parallax.parallax?.baseVelocity = Vector2(-backGroundBaseVelocity, 0);
       } else {
-        GameManager.parallax.parallax?.baseVelocity = Vector2.zero();
+        parallax.parallax?.baseVelocity = Vector2.zero();
       }
       return;
     }
 
     if (!GameManager.isAttack) {
       player.current = PlayerAction.NORMAL;
-      GameManager.parallax.parallax?.baseVelocity = Vector2.zero();
+      parallax.parallax?.baseVelocity = Vector2.zero();
     }
   }
 }
