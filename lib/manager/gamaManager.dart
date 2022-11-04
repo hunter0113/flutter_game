@@ -1,10 +1,7 @@
 import 'dart:ui';
 import 'package:flame/components.dart';
-import 'package:flame/sprite.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_game/role/player.dart';
 import '../button/attackButton.dart';
-import '../role/monster.dart';
 
 class GameManager {
   static final double screenWidth =
@@ -16,9 +13,10 @@ class GameManager {
   static late final AttackComponent attackButton;
 
   static late final SpriteAnimation normalAnimation,
-      attackAniStage_One,
-      attackAniStage_Two,
-      attackAniStage_Three,
+      bowAttackAni,
+      swordAttackAni_One,
+      swordAttackAni_Two,
+      swordAttackAni_Three,
       runAnimation,
       monsterWalk,
       monsterNormal,

@@ -21,20 +21,20 @@ class AttackComponent extends SpriteComponent with Tappable {
     StartGame.parallax.parallax?.baseVelocity = Vector2.zero();
 
     switch (StartGame.player.current) {
-      case PlayerAction.ATTACK_ONE:
+      case PlayerAction.SWORD_ATTACK_ONE:
         GameManager.nextAttackStep = true;
         break;
 
-      case PlayerAction.ATTACK_TWO:
+      case PlayerAction.SWORD_ATTACK_TWO:
         GameManager.nextAttackStep = true;
         break;
 
-      case PlayerAction.ATTACK_THREE:
+      case PlayerAction.SWORD_ATTACK_THREE:
         GameManager.nextAttackStep = true;
         break;
 
       default:
-        StartGame.player.current = PlayerAction.ATTACK_ONE;
+        StartGame.player.current = PlayerAction.BOW_ATTACK;
         break;
     }
 

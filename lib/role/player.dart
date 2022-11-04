@@ -1,24 +1,25 @@
-import 'dart:ui';
-
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
-import '../extension/Liveable.dart';
+import '../component/bullet.dart';
+import '../extension/liveable.dart';
 import '../game/start_game.dart';
 import '../manager/gamaManager.dart';
 
 enum PlayerAction {
   NORMAL,
   RUN,
-  ATTACK_ONE,
-  ATTACK_TWO,
-  ATTACK_THREE,
+  BOW_ATTACK,
+  SWORD_ATTACK_ONE,
+  SWORD_ATTACK_TWO,
+  SWORD_ATTACK_THREE,
 }
 
 class Player extends SpriteAnimationGroupComponent<PlayerAction>
-    with CollisionCallbacks, Liveable {
+    with CollisionCallbacks, Liveable, HasGameRef {
   late ShapeHitbox hitBox;
+  late Sprite bulletSprite;
 
   Player({
     required Map<PlayerAction, SpriteAnimation>? animations,
@@ -40,11 +41,18 @@ class Player extends SpriteAnimationGroupComponent<PlayerAction>
     add(CircleHitbox());
 
     initBloodBar(lifeColor: Colors.blue, lifePoint: 1000);
+
+    bulletSprite = await gameRef.loadSprite('weapon_arrow.png');
+
   }
 
   @override
   void update(double dt) {
     super.update(dt);
+
+    if(current == PlayerAction.BOW_ATTACK && animation!.done()){
+      _onLastFrame();
+    }
   }
 
   @override
@@ -73,4 +81,23 @@ class Player extends SpriteAnimationGroupComponent<PlayerAction>
     }
     GameManager.isLeftCollisionBlock = false;
   }
+
+
+
+  void _onLastFrame() async{
+
+    print("_onLastFrame");
+    animation!.currentIndex = 0;
+    animation!.update(0);
+
+    // 添加子彈
+    Bullet bullet = Bullet(sprite: bulletSprite, maxRange: 200);
+    bullet.size = Vector2(32, 32);
+    bullet.anchor = Anchor.center;
+    bullet.priority = 1;
+    priority = 2;
+    bullet.position = position-Vector2(0,-3);
+    gameRef.add(bullet);
+  }
+
 }

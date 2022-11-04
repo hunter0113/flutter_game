@@ -9,6 +9,7 @@ import 'package:flutter_game/manager/gamaManager.dart';
 import 'package:flutter_game/role/monster.dart';
 import 'package:flutter_game/role/player.dart';
 import '../button/attackButton.dart';
+import '../component/bullet.dart';
 
 class StartGame extends FlameGame
     with HasDraggables, HasTappables, HasCollisionDetection, PanDetector {
@@ -70,10 +71,10 @@ class StartGame extends FlameGame
       loop: true,
     );
 
-    // 攻擊
+    // 劍攻擊
     List<Sprite> attackSprites_One =
         allSpriteSheet.getRowSprites(row: 6, start: ZERO, count: 6);
-    GameManager.attackAniStage_One = SpriteAnimation.spriteList(
+    GameManager.swordAttackAni_One = SpriteAnimation.spriteList(
       attackSprites_One,
       stepTime: 0.08,
       loop: false,
@@ -81,7 +82,7 @@ class StartGame extends FlameGame
 
     List<Sprite> attackSprites_Two =
         allSpriteSheet.getRowSprites(row: 7, start: ZERO, count: 4);
-    GameManager.attackAniStage_Two = SpriteAnimation.spriteList(
+    GameManager.swordAttackAni_Two = SpriteAnimation.spriteList(
       attackSprites_Two,
       stepTime: 0.08,
       loop: false,
@@ -91,11 +92,31 @@ class StartGame extends FlameGame
         allSpriteSheet.getRowSprites(row: 7, start: 4, count: 3);
     attackSprites_Three
         .addAll(allSpriteSheet.getRowSprites(row: 8, start: ZERO, count: 3));
-    GameManager.attackAniStage_Three = SpriteAnimation.spriteList(
+    GameManager.swordAttackAni_Three = SpriteAnimation.spriteList(
       attackSprites_Three,
       stepTime: 0.08,
       loop: false,
     );
+
+    // 弓攻擊
+    const String bowSrc = 'bow.png';
+    await images.load(bowSrc);
+    var bowImage = images.fromCache(bowSrc);
+    SpriteSheet bowSheet = SpriteSheet.fromColumnsAndRows(
+      image: bowImage,
+      columns: 4,
+      rows: 4,
+    );
+
+    List<Sprite> bowSprites = bowSheet.getRowSprites(row: ZERO, start: ZERO, count: 4);
+    bowSprites.addAll(bowSheet.getRowSprites(row: 1, start: ZERO, count: 4));
+    bowSprites.addAll(bowSheet.getRowSprites(row: 2, start: ZERO, count: 1));
+    GameManager.bowAttackAni = SpriteAnimation.spriteList(
+      bowSprites,
+      stepTime: 0.1,
+      loop: false,
+    );
+
 
     // 跑步
     const String runSrc = 'run.png';
@@ -122,9 +143,10 @@ class StartGame extends FlameGame
       animations: {
         PlayerAction.NORMAL: GameManager.normalAnimation,
         PlayerAction.RUN: GameManager.runAnimation,
-        PlayerAction.ATTACK_ONE: GameManager.attackAniStage_One,
-        PlayerAction.ATTACK_TWO: GameManager.attackAniStage_Two,
-        PlayerAction.ATTACK_THREE: GameManager.attackAniStage_Three,
+        PlayerAction.BOW_ATTACK: GameManager.bowAttackAni,
+        PlayerAction.SWORD_ATTACK_ONE: GameManager.swordAttackAni_One,
+        PlayerAction.SWORD_ATTACK_TWO: GameManager.swordAttackAni_Two,
+        PlayerAction.SWORD_ATTACK_THREE: GameManager.swordAttackAni_Three,
       },
       current: PlayerAction.NORMAL,
       position: Vector2(
@@ -266,6 +288,19 @@ class StartGame extends FlameGame
       monster.removeFromParent();
     }
 
+
+    final Iterable<Bullet> bullets = children.whereType<Bullet>();
+    for(Bullet bullet in bullets){
+      if(bullet.shouldRemove){
+        continue;
+      }
+      if(monster.containsPoint(bullet.absoluteCenter)){ // tag1
+        bullet.removeFromParent();
+        monster.loss(100);
+        break;
+      }
+    }
+
     if (GameManager.isAttack &&
         (GameManager.isRightCollisionBlock ||
             GameManager.isLeftCollisionBlock) &&
@@ -280,20 +315,20 @@ class StartGame extends FlameGame
 
       if (GameManager.nextAttackStep) {
         switch (player.current) {
-          case PlayerAction.ATTACK_ONE:
-            player.current = PlayerAction.ATTACK_TWO;
+          case PlayerAction.SWORD_ATTACK_ONE:
+            player.current = PlayerAction.SWORD_ATTACK_TWO;
             break;
 
-          case PlayerAction.ATTACK_TWO:
-            player.current = PlayerAction.ATTACK_THREE;
+          case PlayerAction.SWORD_ATTACK_TWO:
+            player.current = PlayerAction.SWORD_ATTACK_THREE;
             break;
 
-          case PlayerAction.ATTACK_THREE:
-            player.current = PlayerAction.ATTACK_ONE;
+          case PlayerAction.SWORD_ATTACK_THREE:
+            player.current = PlayerAction.SWORD_ATTACK_ONE;
             break;
 
           default:
-            player.current = PlayerAction.ATTACK_ONE;
+            player.current = PlayerAction.SWORD_ATTACK_ONE;
             break;
         }
         GameManager.nextAttackStep = false;
