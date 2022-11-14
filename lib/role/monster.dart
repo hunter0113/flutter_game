@@ -1,7 +1,7 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_game/extension/liveable.dart';
+import 'package:flutter_game/component/liveable.dart';
 
 import '../component/bullet.dart';
 

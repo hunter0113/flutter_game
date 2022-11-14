@@ -3,7 +3,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
 import '../component/bullet.dart';
-import '../extension/liveable.dart';
+import '../component/liveable.dart';
 import '../game/start_game.dart';
 import '../manager/gamaManager.dart';
 
@@ -41,9 +41,7 @@ class Player extends SpriteAnimationGroupComponent<PlayerAction>
     add(CircleHitbox());
 
     initBloodBar(lifeColor: Colors.blue, lifePoint: 1000);
-
     bulletSprite = await gameRef.loadSprite('weapon_arrow.png');
-
   }
 
   @override
@@ -83,15 +81,13 @@ class Player extends SpriteAnimationGroupComponent<PlayerAction>
   }
 
 
-
   void _onLastFrame() async{
 
-    print("_onLastFrame");
     animation!.currentIndex = 0;
     animation!.update(0);
 
     // 添加子彈
-    Bullet bullet = Bullet(sprite: bulletSprite, maxRange: 200);
+    Bullet bullet = Bullet(sprite: bulletSprite, maxRange: 300);
     bullet.size = Vector2(32, 32);
     bullet.anchor = Anchor.center;
     bullet.priority = 1;

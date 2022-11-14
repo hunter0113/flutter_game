@@ -99,7 +99,7 @@ class StartGame extends FlameGame
     );
 
     // 弓攻擊
-    const String bowSrc = 'bow.png';
+    const String bowSrc = 'bow_attack.png';
     await images.load(bowSrc);
     var bowImage = images.fromCache(bowSrc);
     SpriteSheet bowSheet = SpriteSheet.fromColumnsAndRows(
@@ -108,7 +108,8 @@ class StartGame extends FlameGame
       rows: 4,
     );
 
-    List<Sprite> bowSprites = bowSheet.getRowSprites(row: ZERO, start: ZERO, count: 4);
+    List<Sprite> bowSprites =
+        bowSheet.getRowSprites(row: ZERO, start: ZERO, count: 4);
     bowSprites.addAll(bowSheet.getRowSprites(row: 1, start: ZERO, count: 4));
     bowSprites.addAll(bowSheet.getRowSprites(row: 2, start: ZERO, count: 1));
     GameManager.bowAttackAni = SpriteAnimation.spriteList(
@@ -116,7 +117,6 @@ class StartGame extends FlameGame
       stepTime: 0.1,
       loop: false,
     );
-
 
     // 跑步
     const String runSrc = 'run.png';
@@ -288,25 +288,25 @@ class StartGame extends FlameGame
       monster.removeFromParent();
     }
 
-
-    final Iterable<Bullet> bullets = children.whereType<Bullet>();
-    for(Bullet bullet in bullets){
-      if(bullet.shouldRemove){
-        continue;
+    if (monster.life > 0) {
+      final Iterable<Bullet> bullets = children.whereType<Bullet>();
+      for (Bullet bullet in bullets) {
+        if (bullet.isRemoving) {
+          continue;
+        }
+        if (monster.containsPoint(bullet.absoluteCenter)) {
+          bullet.removeFromParent();
+          monster.loss(100);
+          break;
+        }
       }
-      if(monster.containsPoint(bullet.absoluteCenter)){ // tag1
-        bullet.removeFromParent();
+      if (GameManager.isAttack &&
+          (GameManager.isRightCollisionBlock ||
+              GameManager.isLeftCollisionBlock) &&
+          !GameManager.causeDamage) {
+        GameManager.causeDamage = true;
         monster.loss(100);
-        break;
       }
-    }
-
-    if (GameManager.isAttack &&
-        (GameManager.isRightCollisionBlock ||
-            GameManager.isLeftCollisionBlock) &&
-        !GameManager.causeDamage) {
-      GameManager.causeDamage = true;
-      monster.loss(100);
     }
 
     if ((GameManager.isAttack) && player.animation!.done()) {
