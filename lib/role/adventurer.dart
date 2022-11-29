@@ -7,7 +7,7 @@ import '../component/liveable.dart';
 import '../game/start_game.dart';
 import '../manager/gamaManager.dart';
 
-enum PlayerAction {
+enum AdventurerAction {
   NORMAL,
   RUN,
   BOW_ATTACK,
@@ -16,16 +16,16 @@ enum PlayerAction {
   SWORD_ATTACK_THREE,
 }
 
-class Player extends SpriteAnimationGroupComponent<PlayerAction>
+class Adventurer extends SpriteAnimationGroupComponent<AdventurerAction>
     with CollisionCallbacks, Liveable, HasGameRef {
   late ShapeHitbox hitBox;
   late Sprite bulletSprite;
 
-  Player({
-    required Map<PlayerAction, SpriteAnimation>? animations,
+  Adventurer({
+    required Map<AdventurerAction, SpriteAnimation>? animations,
     required Vector2 size,
     required Vector2 position,
-    required PlayerAction current,
+    required AdventurerAction current,
   }) : super(
           animations: animations,
           size: size,
@@ -37,10 +37,13 @@ class Player extends SpriteAnimationGroupComponent<PlayerAction>
   @override
   Future<void> onLoad() async {
     // debugMode
-    // add(CircleHitbox()..debugMode = true);
+    add(CircleHitbox()..debugMode = true);
     add(CircleHitbox());
 
+    // 血條
     initBloodBar(lifeColor: Colors.blue, lifePoint: 1000);
+
+    // 子彈
     bulletSprite = await gameRef.loadSprite('weapon_arrow.png');
   }
 
@@ -48,7 +51,7 @@ class Player extends SpriteAnimationGroupComponent<PlayerAction>
   void update(double dt) {
     super.update(dt);
 
-    if(current == PlayerAction.BOW_ATTACK && animation!.done()){
+    if(current == AdventurerAction.BOW_ATTACK && animation!.done()){
       _onLastFrame();
     }
   }
@@ -60,7 +63,7 @@ class Player extends SpriteAnimationGroupComponent<PlayerAction>
   ) {
     super.onCollisionStart(intersectionPoints, other);
 
-    if (other.position.x > StartGame.player.x) {
+    if (other.position.x > StartGame.adventurer.x) {
       GameManager.isRightCollisionBlock = true;
       return;
     }
@@ -73,7 +76,7 @@ class Player extends SpriteAnimationGroupComponent<PlayerAction>
     super.onCollisionEnd(other);
 
     print("onCollisionEnd start");
-    if (other.position.x > StartGame.player.x) {
+    if (other.position.x > StartGame.adventurer.x) {
       GameManager.isRightCollisionBlock = false;
       return;
     }
@@ -92,7 +95,7 @@ class Player extends SpriteAnimationGroupComponent<PlayerAction>
     bullet.anchor = Anchor.center;
     bullet.priority = 1;
     priority = 2;
-    bullet.position = position-Vector2(0,-3);
+    bullet.position = position-Vector2(-30, 0);
     gameRef.add(bullet);
   }
 

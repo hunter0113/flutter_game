@@ -7,18 +7,18 @@ import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_game/manager/gamaManager.dart';
 import 'package:flutter_game/role/monster.dart';
-import 'package:flutter_game/role/player.dart';
+import 'package:flutter_game/role/adventurer.dart';
 import '../button/attackButton.dart';
 import '../component/bullet.dart';
 
 class StartGame extends FlameGame
     with HasDraggables, HasTappables, HasCollisionDetection, PanDetector {
-  var backGroundBaseVelocity = 3.0;
-  var playerSpeed = 150.0;
+  var backGroundBaseVelocity = 10.0;
+  var playerSpeed = 120.0;
   int ZERO = 0;
 
   static late ParallaxComponent parallax;
-  static late Player player;
+  static late Adventurer adventurer;
   static late Monster monster;
   static late SpriteSheet allSpriteSheet,
       monster_normal_Sheet,
@@ -98,7 +98,7 @@ class StartGame extends FlameGame
       loop: false,
     );
 
-    // 弓攻擊
+    //TODO 拉弓射擊
     const String bowSrc = 'bow_attack.png';
     await images.load(bowSrc);
     var bowImage = images.fromCache(bowSrc);
@@ -139,22 +139,22 @@ class StartGame extends FlameGame
     /**
      * Player
      */
-    player = Player(
+    adventurer = Adventurer(
       animations: {
-        PlayerAction.NORMAL: GameManager.normalAnimation,
-        PlayerAction.RUN: GameManager.runAnimation,
-        PlayerAction.BOW_ATTACK: GameManager.bowAttackAni,
-        PlayerAction.SWORD_ATTACK_ONE: GameManager.swordAttackAni_One,
-        PlayerAction.SWORD_ATTACK_TWO: GameManager.swordAttackAni_Two,
-        PlayerAction.SWORD_ATTACK_THREE: GameManager.swordAttackAni_Three,
+        AdventurerAction.NORMAL: GameManager.normalAnimation,
+        AdventurerAction.RUN: GameManager.runAnimation,
+        AdventurerAction.BOW_ATTACK: GameManager.bowAttackAni,
+        AdventurerAction.SWORD_ATTACK_ONE: GameManager.swordAttackAni_One,
+        AdventurerAction.SWORD_ATTACK_TWO: GameManager.swordAttackAni_Two,
+        AdventurerAction.SWORD_ATTACK_THREE: GameManager.swordAttackAni_Three,
       },
-      current: PlayerAction.NORMAL,
+      current: AdventurerAction.NORMAL,
       position: Vector2(
           GameManager.screenWidth * 0.3, GameManager.screenHeight * 0.8),
       size: Vector2(50, 37) * 2,
     );
 
-    add(player);
+    add(adventurer);
 
     /**
      * Monster
@@ -250,7 +250,7 @@ class StartGame extends FlameGame
     add(monster);
 
     // 焦點
-    camera.followComponent(player, relativeOffset: const Anchor(0.3, 0.8));
+    camera.followComponent(adventurer, relativeOffset: const Anchor(0.3, 0.8));
 
     /**
      * JoyStick
@@ -280,9 +280,9 @@ class StartGame extends FlameGame
     bool moveRight = GameManager.joystick.relativeDelta[0] > ZERO;
 
     double playerVectorX =
-        (GameManager.joystick.relativeDelta * playerSpeed * dt)[0];
+        (GameManager.joystick.relativeDelta * (playerSpeed * 1.2) * dt)[0];
     double playerVectorY =
-        (GameManager.joystick.relativeDelta * playerSpeed * dt)[1];
+        (GameManager.joystick.relativeDelta * (playerSpeed * 1.2) * dt)[1];
 
     if (monster.current == MonsterAction.DEATH && monster.animation!.done()) {
       monster.removeFromParent();
@@ -294,41 +294,34 @@ class StartGame extends FlameGame
         if (bullet.isRemoving) {
           continue;
         }
-        if (monster.containsPoint(bullet.absoluteCenter)) {
-          bullet.removeFromParent();
-          monster.loss(100);
+
+        if (!monster.containsPoint(bullet.absoluteCenter)) {
           break;
         }
-      }
-      if (GameManager.isAttack &&
-          (GameManager.isRightCollisionBlock ||
-              GameManager.isLeftCollisionBlock) &&
-          !GameManager.causeDamage) {
-        GameManager.causeDamage = true;
-        monster.loss(100);
+        bullet.removeFromParent();
+        monster.loss(200);
       }
     }
 
-    if ((GameManager.isAttack) && player.animation!.done()) {
-      player.animation!.reset();
-      GameManager.causeDamage = false;
+    if ((GameManager.isAttack) && adventurer.animation!.done()) {
+      adventurer.animation!.reset();
 
       if (GameManager.nextAttackStep) {
-        switch (player.current) {
-          case PlayerAction.SWORD_ATTACK_ONE:
-            player.current = PlayerAction.SWORD_ATTACK_TWO;
+        switch (adventurer.current) {
+          case AdventurerAction.SWORD_ATTACK_ONE:
+            adventurer.current = AdventurerAction.SWORD_ATTACK_TWO;
             break;
 
-          case PlayerAction.SWORD_ATTACK_TWO:
-            player.current = PlayerAction.SWORD_ATTACK_THREE;
+          case AdventurerAction.SWORD_ATTACK_TWO:
+            adventurer.current = AdventurerAction.SWORD_ATTACK_THREE;
             break;
 
-          case PlayerAction.SWORD_ATTACK_THREE:
-            player.current = PlayerAction.SWORD_ATTACK_ONE;
+          case AdventurerAction.SWORD_ATTACK_THREE:
+            adventurer.current = AdventurerAction.SWORD_ATTACK_ONE;
             break;
 
           default:
-            player.current = PlayerAction.SWORD_ATTACK_ONE;
+            adventurer.current = AdventurerAction.SWORD_ATTACK_ONE;
             break;
         }
         GameManager.nextAttackStep = false;
@@ -345,27 +338,27 @@ class StartGame extends FlameGame
 
     // 透過joystick 讓角色進行x軸上的位移
     if (!GameManager.joystick.delta.isZero()) {
-      player.current = PlayerAction.RUN;
+      adventurer.current = AdventurerAction.RUN;
 
-      if (moveLeft && player.x > 0 && !GameManager.isLeftCollisionBlock) {
-        player.position.add(Vector2(playerVectorX, 0));
+      if (moveLeft && adventurer.x > 0 && !GameManager.isLeftCollisionBlock) {
+        adventurer.position.add(Vector2(playerVectorX, 0));
       }
 
       if (moveRight &&
-          player.x < size[0] &&
+          adventurer.x < size[0] &&
           !GameManager.isRightCollisionBlock) {
-        player.position.add(Vector2(playerVectorX, 0));
+        adventurer.position.add(Vector2(playerVectorX, 0));
       }
 
       // 角色左右翻轉
-      if (moveRight && GameManager.playerFlipped) {
-        GameManager.playerFlipped = false;
-        player.flipHorizontallyAroundCenter();
+      if (moveRight && GameManager.adventurerFlipped) {
+        GameManager.adventurerFlipped = false;
+        adventurer.flipHorizontallyAroundCenter();
       }
 
-      if (moveLeft && !GameManager.playerFlipped) {
-        GameManager.playerFlipped = true;
-        player.flipHorizontallyAroundCenter();
+      if (moveLeft && !GameManager.adventurerFlipped) {
+        GameManager.adventurerFlipped = true;
+        adventurer.flipHorizontallyAroundCenter();
       }
 
       // 背景左右翻轉
@@ -379,10 +372,12 @@ class StartGame extends FlameGame
       return;
     }
 
-    if (!GameManager.isAttack) {
-      player.current = PlayerAction.NORMAL;
-      parallax.parallax?.baseVelocity = Vector2.zero();
+
+    if (GameManager.isAttack) {
+      return;
     }
+    adventurer.current = AdventurerAction.NORMAL;
+    parallax.parallax?.baseVelocity = Vector2.zero();
   }
 }
 

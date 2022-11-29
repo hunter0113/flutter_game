@@ -23,13 +23,12 @@ class GameManager {
       monsterAttack,
       monsterDeath;
 
-  static bool playerFlipped = false;
+  static bool adventurerFlipped = false;
   static bool isAttack = false;
   static bool nextAttackStep = false;
 
   static bool isLeftCollisionBlock = false;
   static bool isRightCollisionBlock = false;
-  static bool causeDamage = false;
 
 
   // 背景與x座標軸上的速度

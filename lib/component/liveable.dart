@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:math';
+
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +16,8 @@ mixin Liveable on PositionComponent {
   final double _offsetY = 10; // 血量距離構件頂部偏移量
   final double _widthRadio = 1.2; // 血條寬度
   final double _lifeBarHeight = 4; // 血條高度
+
+  final Random _random = Random();
 
   final TextStyle _defaultTextStyle =
       const TextStyle(fontSize: 10, color: Colors.white);
@@ -39,7 +44,7 @@ mixin Liveable on PositionComponent {
     _updateLifeText();
     double y = -(_offsetY + _text.height + 2);
     double x = (size.x / 2) * (_widthRadio / 2);
-    _text.position = Vector2(x, y); // tag1
+    _text.position = Vector2(x, y);
     add(_text);
 
     // 添加爆擊文字
@@ -71,14 +76,26 @@ mixin Liveable on PositionComponent {
   }
 
   void loss(double point) {
+    // 爆擊
+    double crit = 0.75;
+    double critDamage = 1.5;
+    bool isCrit = _random.nextDouble() < crit;
+    if (isCrit) {
+      point = point * critDamage;
+    }
+
+    // 傷害量
     currentLife -= point;
-    if (currentLife <= 0) {
-      currentLife = 0;
-      onDied();
+
+    _damageText.addDamage(-point.toInt(),isCrit: isCrit);
+    _updateLifeText();
+
+    if (currentLife > 0) {
       return;
     }
-    _damageText.addDamage(-point.toInt());
-    _updateLifeText();
+
+    currentLife = 0;
+    onDied();
   }
 
   void onDied() {}

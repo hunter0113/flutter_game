@@ -3,8 +3,6 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_game/component/liveable.dart';
 
-import '../component/bullet.dart';
-
 enum MonsterAction {
   NORMAL,
   WALK,
@@ -32,7 +30,7 @@ class Monster extends SpriteAnimationGroupComponent<MonsterAction>
   @override
   Future<void> onLoad() async {
     // debugMode
-    // add(CircleHitbox()..debugMode = true);
+    add(CircleHitbox()..debugMode = true);
     add(CircleHitbox());
 
     initBloodBar(lifeColor: Colors.red, lifePoint: 1000);
@@ -49,13 +47,11 @@ class Monster extends SpriteAnimationGroupComponent<MonsterAction>
     PositionComponent other,
   ) {
     super.onCollisionStart(intersectionPoints, other);
-    // TODO
   }
 
   @override
   void onCollisionEnd(PositionComponent other) {
     super.onCollisionEnd(other);
-    // TODO
   }
 
   @override
