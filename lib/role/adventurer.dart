@@ -2,8 +2,8 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
-import '../component/bullet.dart';
-import '../component/liveable.dart';
+import '../components/bullet.dart';
+import '../components/lifeComponent.dart';
 import '../game/start_game.dart';
 import '../manager/gamaManager.dart';
 
