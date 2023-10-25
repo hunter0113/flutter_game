@@ -10,6 +10,7 @@ void main() async {
   await Flame.device.fullScreen();
   await Flame.device.setLandscape();
 
+  
   runApp(GameWidget(game: StartGame()));
 }
 
