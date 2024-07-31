@@ -9,7 +9,7 @@ import 'package:flutter_game/manager/gamaManager.dart';
 import 'package:flutter_game/role/monster.dart';
 import 'package:flutter_game/role/adventurer.dart';
 import '../button/attackButton.dart';
-import '../component/bullet.dart';
+import '../components/bullet.dart';
 
 class StartGame extends FlameGame
     with HasDraggables, HasTappables, HasCollisionDetection, PanDetector {
