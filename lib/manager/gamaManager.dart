@@ -1,14 +1,11 @@
 import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:flutter/cupertino.dart';
-import '../button/attackButton.dart';
 
-class GameManager {
+// 遊戲的狀態和動畫管理
+class GameAnimationManager {
   final double screenWidth;
   final double screenHeight;
-
-  late final JoystickComponent joystick;
-  late final AttackComponent attackButton;
 
   // 角色動畫
   late final SpriteAnimation normalAnimation;
@@ -47,7 +44,7 @@ class GameManager {
     'background_0.png': 3.25,
   };
 
-  GameManager()
+  GameAnimationManager()
       : screenWidth = MediaQueryData.fromView(window).size.width,
         screenHeight = MediaQueryData.fromView(window).size.height;
 }

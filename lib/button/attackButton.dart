@@ -5,7 +5,7 @@ import '../game/start_game.dart';
 import '../role/adventurer.dart';
 
 class AttackComponent extends SpriteComponent with Tappable {
-  final GameManager gameManager;
+  final GameAnimationManager gameManager;
 
   AttackComponent(this.gameManager, Sprite sprite, Vector2 position)
       : super(

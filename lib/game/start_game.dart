@@ -16,6 +16,8 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
   var playerSpeed = 120.0;
   int ZERO = 0;
 
+  late final JoystickComponent joystick;
+  late final AttackComponent attackButton;
   static late ParallaxComponent parallax;
   static late Adventurer adventurer;
   static late Monster monster;
@@ -25,12 +27,12 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
       monster_attack_Sheet,
       monster_death_Sheet;
 
-  late GameManager gameManager;
+  late GameAnimationManager gameManager;
 
   @override
   Future<void> onLoad() async {
     super.onLoad();
-    gameManager = GameManager();
+    gameManager = GameAnimationManager();
 
     await _loadBackground();
     await _loadPlayer();
@@ -43,11 +45,11 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
   void update(double dt) {
     super.update(dt);
 
-    bool moveLeft = gameManager.joystick.relativeDelta[0] < ZERO;
-    bool moveRight = gameManager.joystick.relativeDelta[0] > ZERO;
+    bool moveLeft = joystick.relativeDelta[0] < ZERO;
+    bool moveRight = joystick.relativeDelta[0] > ZERO;
 
-    double playerVectorX = (gameManager.joystick.relativeDelta * (playerSpeed * 1.2) * dt)[0];
-    double playerVectorY = (gameManager.joystick.relativeDelta * (playerSpeed * 1.2) * dt)[1];
+    double playerVectorX = (joystick.relativeDelta * (playerSpeed * 1.2) * dt)[0];
+    double playerVectorY = (joystick.relativeDelta * (playerSpeed * 1.2) * dt)[1];
 
     if (monster.current == MonsterAction.DEATH && monster.animation!.done()) {
       monster.removeFromParent();
@@ -67,7 +69,7 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
     }
 
     // 透過joystick 讓角色進行x軸上的位移
-    if (!gameManager.joystick.delta.isZero()) {
+    if (!joystick.delta.isZero()) {
       joystickMove(playerVectorX, playerVectorY, moveLeft, moveRight);
       return;
     }
@@ -82,19 +84,19 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
   void _setupJoystickAndButton() async {
     final knobPaint = BasicPalette.white.withAlpha(200).paint();
     final backgroundPaint = BasicPalette.white.withAlpha(100).paint();
-    gameManager.joystick = JoystickComponent(
+    joystick = JoystickComponent(
       knob: CircleComponent(radius: 24, paint: knobPaint),
       background: CircleComponent(radius: 50, paint: backgroundPaint),
       margin: const EdgeInsets.only(left: 30, bottom: 40),
     );
-    add(gameManager.joystick);
+    add(joystick);
 
     const String attackSrc = 'attack.png';
     await images.load(attackSrc);
     var attackImage = images.fromCache(attackSrc);
-    gameManager.attackButton = AttackComponent(gameManager, Sprite(attackImage),
+    attackButton = AttackComponent(gameManager, Sprite(attackImage),
         Vector2(gameManager.screenWidth * 0.9, gameManager.screenHeight * 0.8));
-    add(gameManager.attackButton..positionType = PositionType.viewport);
+    add(attackButton..positionType = PositionType.viewport);
   }
 
   Future<void> _loadBackground() async {

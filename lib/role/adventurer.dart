@@ -18,7 +18,7 @@ enum AdventurerAction {
 
 class Adventurer extends SpriteAnimationGroupComponent<AdventurerAction>
     with CollisionCallbacks, Liveable, HasGameRef {
-  final GameManager gameManager;
+  final GameAnimationManager gameManager;
   late ShapeHitbox hitBox;
   late Sprite bulletSprite;
 
