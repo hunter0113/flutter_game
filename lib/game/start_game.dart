@@ -30,13 +30,11 @@ class StartGame extends FlameGame
   Future<void> onLoad() async {
     super.onLoad();
 
-
     await _loadBackground();
     await _loadPlayer();
     await _loadMonster();
     _setupCamera();
     _setupJoystickAndButton();
-
   }
 
   @override
@@ -47,55 +45,21 @@ class StartGame extends FlameGame
     bool moveRight = GameManager.joystick.relativeDelta[0] > ZERO;
 
     double playerVectorX =
-        (GameManager.joystick.relativeDelta * (playerSpeed * 1.2) * dt)[0];
+    (GameManager.joystick.relativeDelta * (playerSpeed * 1.2) * dt)[0];
     double playerVectorY =
-        (GameManager.joystick.relativeDelta * (playerSpeed * 1.2) * dt)[1];
+    (GameManager.joystick.relativeDelta * (playerSpeed * 1.2) * dt)[1];
 
     if (monster.current == MonsterAction.DEATH && monster.animation!.done()) {
       monster.removeFromParent();
     }
 
-    if (monster.life > 0) {
-      final Iterable<Bullet> bullets = children.whereType<Bullet>();
-      for (Bullet bullet in bullets) {
-        if (bullet.isRemoving) {
-          continue;
-        }
 
-        if (!monster.containsPoint(bullet.absoluteCenter)) {
-          break;
-        }
-        bullet.removeFromParent();
-        monster.loss(200);
-      }
+    if (monster.life > 0) {
+      monsterUpdate();
     }
 
     if ((GameManager.isAttack) && adventurer.animation!.done()) {
-      adventurer.animation!.reset();
-
-      if (GameManager.nextAttackStep) {
-        switch (adventurer.current) {
-          case AdventurerAction.SWORD_ATTACK_ONE:
-            adventurer.current = AdventurerAction.SWORD_ATTACK_TWO;
-            break;
-
-          case AdventurerAction.SWORD_ATTACK_TWO:
-            adventurer.current = AdventurerAction.SWORD_ATTACK_THREE;
-            break;
-
-          case AdventurerAction.SWORD_ATTACK_THREE:
-            adventurer.current = AdventurerAction.SWORD_ATTACK_ONE;
-            break;
-
-          default:
-            adventurer.current = AdventurerAction.SWORD_ATTACK_ONE;
-            break;
-        }
-        GameManager.nextAttackStep = false;
-        return;
-      }
-
-      GameManager.isAttack = false;
+      swordAttack();
       return;
     }
 
@@ -105,37 +69,7 @@ class StartGame extends FlameGame
 
     // 透過joystick 讓角色進行x軸上的位移
     if (!GameManager.joystick.delta.isZero()) {
-      adventurer.current = AdventurerAction.RUN;
-
-      if (moveLeft && adventurer.x > 0 && !GameManager.isLeftCollisionBlock) {
-        adventurer.position.add(Vector2(playerVectorX, 0));
-      }
-
-      if (moveRight &&
-          adventurer.x < size[0] &&
-          !GameManager.isRightCollisionBlock) {
-        adventurer.position.add(Vector2(playerVectorX, 0));
-      }
-
-      // 角色左右翻轉
-      if (moveRight && GameManager.adventurerFlipped) {
-        GameManager.adventurerFlipped = false;
-        adventurer.flipHorizontallyAroundCenter();
-      }
-
-      if (moveLeft && !GameManager.adventurerFlipped) {
-        GameManager.adventurerFlipped = true;
-        adventurer.flipHorizontallyAroundCenter();
-      }
-
-      // 背景左右翻轉
-      if (moveRight && !GameManager.isRightCollisionBlock) {
-        parallax.parallax?.baseVelocity = Vector2(backGroundBaseVelocity, 0);
-      } else if (moveLeft && !GameManager.isLeftCollisionBlock) {
-        parallax.parallax?.baseVelocity = Vector2(-backGroundBaseVelocity, 0);
-      } else {
-        parallax.parallax?.baseVelocity = Vector2.zero();
-      }
+      joystickMove(playerVectorX, playerVectorY, moveLeft, moveRight);
       return;
     }
 
@@ -167,14 +101,14 @@ class StartGame extends FlameGame
   }
 
 
-
   Future<void> _loadBackground() async {
     // 設置背景層
     final layers = GameManager.bgLayerInfo.entries.map(
-          (entry) => loadParallaxLayer(
-        ParallaxImageData(entry.key),
-        velocityMultiplier: Vector2(entry.value, 0),
-      ),
+          (entry) =>
+          loadParallaxLayer(
+            ParallaxImageData(entry.key),
+            velocityMultiplier: Vector2(entry.value, 0),
+          ),
     );
 
     parallax = ParallaxComponent(
@@ -186,7 +120,6 @@ class StartGame extends FlameGame
 
     parallax.parallax?.baseVelocity = Vector2.zero();
     add(parallax);
-
   }
 
   Future<void> _loadPlayer() async {
@@ -200,29 +133,34 @@ class StartGame extends FlameGame
       rows: 18,
     );
 
-    List<Sprite> normalSprites = allSpriteSheet.getRowSprites(row: ZERO, start: ZERO, count: 4);
+    List<Sprite> normalSprites = allSpriteSheet.getRowSprites(
+        row: ZERO, start: ZERO, count: 4);
     GameManager.normalAnimation = SpriteAnimation.spriteList(
       normalSprites,
       stepTime: 0.2,
       loop: true,
     );
 
-    List<Sprite> attackSprites_One = allSpriteSheet.getRowSprites(row: 6, start: ZERO, count: 6);
+    List<Sprite> attackSprites_One = allSpriteSheet.getRowSprites(
+        row: 6, start: ZERO, count: 6);
     GameManager.swordAttackAni_One = SpriteAnimation.spriteList(
       attackSprites_One,
       stepTime: 0.08,
       loop: false,
     );
 
-    List<Sprite> attackSprites_Two = allSpriteSheet.getRowSprites(row: 7, start: ZERO, count: 4);
+    List<Sprite> attackSprites_Two = allSpriteSheet.getRowSprites(
+        row: 7, start: ZERO, count: 4);
     GameManager.swordAttackAni_Two = SpriteAnimation.spriteList(
       attackSprites_Two,
       stepTime: 0.08,
       loop: false,
     );
 
-    List<Sprite> attackSprites_Three = allSpriteSheet.getRowSprites(row: 7, start: 4, count: 3);
-    attackSprites_Three.addAll(allSpriteSheet.getRowSprites(row: 8, start: ZERO, count: 3));
+    List<Sprite> attackSprites_Three = allSpriteSheet.getRowSprites(
+        row: 7, start: 4, count: 3);
+    attackSprites_Three.addAll(
+        allSpriteSheet.getRowSprites(row: 8, start: ZERO, count: 3));
     GameManager.swordAttackAni_Three = SpriteAnimation.spriteList(
       attackSprites_Three,
       stepTime: 0.08,
@@ -238,7 +176,8 @@ class StartGame extends FlameGame
       rows: 4,
     );
 
-    List<Sprite> bowSprites = bowSheet.getRowSprites(row: ZERO, start: ZERO, count: 4);
+    List<Sprite> bowSprites = bowSheet.getRowSprites(
+        row: ZERO, start: ZERO, count: 4);
     bowSprites.addAll(bowSheet.getRowSprites(row: 1, start: ZERO, count: 4));
     bowSprites.addAll(bowSheet.getRowSprites(row: 2, start: ZERO, count: 1));
     GameManager.bowAttackAni = SpriteAnimation.spriteList(
@@ -256,7 +195,8 @@ class StartGame extends FlameGame
       rows: 1,
     );
 
-    List<Sprite> runSprites = runSheet.getRowSprites(row: ZERO, start: ZERO, count: 6);
+    List<Sprite> runSprites = runSheet.getRowSprites(
+        row: ZERO, start: ZERO, count: 6);
     GameManager.runAnimation = SpriteAnimation.spriteList(
       runSprites,
       stepTime: 0.1,
@@ -273,7 +213,8 @@ class StartGame extends FlameGame
         AdventurerAction.SWORD_ATTACK_THREE: GameManager.swordAttackAni_Three,
       },
       current: AdventurerAction.NORMAL,
-      position: Vector2(GameManager.screenWidth * 0.3, GameManager.screenHeight * 0.8),
+      position: Vector2(
+          GameManager.screenWidth * 0.3, GameManager.screenHeight * 0.8),
       size: Vector2(50, 37) * 2,
     );
 
@@ -292,7 +233,8 @@ class StartGame extends FlameGame
       rows: 1,
     );
 
-    List<Sprite> monster_normal_Sprites = monster_normal_Sheet.getRowSprites(row: ZERO, start: ZERO, count: 10);
+    List<Sprite> monster_normal_Sprites = monster_normal_Sheet.getRowSprites(
+        row: ZERO, start: ZERO, count: 10);
     GameManager.monsterNormal = SpriteAnimation.spriteList(
       monster_normal_Sprites,
       stepTime: 0.1,
@@ -308,7 +250,8 @@ class StartGame extends FlameGame
       rows: 1,
     );
 
-    List<Sprite> monster_walk_Sprites = monster_walk_Sheet.getRowSprites(row: ZERO, start: ZERO, count: 9);
+    List<Sprite> monster_walk_Sprites = monster_walk_Sheet.getRowSprites(
+        row: ZERO, start: ZERO, count: 9);
     GameManager.monsterWalk = SpriteAnimation.spriteList(
       monster_walk_Sprites,
       stepTime: 0.1,
@@ -324,7 +267,8 @@ class StartGame extends FlameGame
       rows: 1,
     );
 
-    List<Sprite> monster_attack_Sprites = monster_attack_Sheet.getRowSprites(row: ZERO, start: ZERO, count: 12);
+    List<Sprite> monster_attack_Sprites = monster_attack_Sheet.getRowSprites(
+        row: ZERO, start: ZERO, count: 12);
     GameManager.monsterAttack = SpriteAnimation.spriteList(
       monster_attack_Sprites,
       stepTime: 0.1,
@@ -340,7 +284,8 @@ class StartGame extends FlameGame
       rows: 1,
     );
 
-    List<Sprite> monster_death_Sprites = monster_death_Sheet.getRowSprites(row: ZERO, start: ZERO, count: 12);
+    List<Sprite> monster_death_Sprites = monster_death_Sheet.getRowSprites(
+        row: ZERO, start: ZERO, count: 12);
     GameManager.monsterDeath = SpriteAnimation.spriteList(
       monster_death_Sprites,
       stepTime: 0.1,
@@ -355,7 +300,8 @@ class StartGame extends FlameGame
         MonsterAction.DEATH: GameManager.monsterDeath,
       },
       current: MonsterAction.NORMAL,
-      position: Vector2(GameManager.screenWidth * 0.8, GameManager.screenHeight * 0.8),
+      position: Vector2(
+          GameManager.screenWidth * 0.8, GameManager.screenHeight * 0.8),
       size: Vector2(48, 37) * 2,
     );
 
@@ -367,7 +313,83 @@ class StartGame extends FlameGame
     camera.followComponent(adventurer, relativeOffset: const Anchor(0.3, 0.8));
   }
 
+  void monsterUpdate() {
+    final Iterable<Bullet> bullets = children.whereType<Bullet>();
+    for (Bullet bullet in bullets) {
+      if (bullet.isRemoving) {
+        continue;
+      }
 
+      if (!monster.containsPoint(bullet.absoluteCenter)) {
+        break;
+      }
+      bullet.removeFromParent();
+      monster.loss(200);
+    }
+  }
+
+  void swordAttack() {
+    adventurer.animation!.reset();
+
+    if (GameManager.nextAttackStep) {
+      switch (adventurer.current) {
+        case AdventurerAction.SWORD_ATTACK_ONE:
+          adventurer.current = AdventurerAction.SWORD_ATTACK_TWO;
+          break;
+
+        case AdventurerAction.SWORD_ATTACK_TWO:
+          adventurer.current = AdventurerAction.SWORD_ATTACK_THREE;
+          break;
+
+        case AdventurerAction.SWORD_ATTACK_THREE:
+          adventurer.current = AdventurerAction.SWORD_ATTACK_ONE;
+          break;
+
+        default:
+          adventurer.current = AdventurerAction.SWORD_ATTACK_ONE;
+          break;
+      }
+      GameManager.nextAttackStep = false;
+      return;
+    }
+
+    GameManager.isAttack = false;
+  }
+
+
+  void joystickMove(double playerVectorX, double playerVectorY, bool moveLeft, bool moveRight) {
+    adventurer.current = AdventurerAction.RUN;
+
+    if (moveLeft && adventurer.x > 0 && !GameManager.isLeftCollisionBlock) {
+      adventurer.position.add(Vector2(playerVectorX, 0));
+    }
+
+    if (moveRight &&
+        adventurer.x < size[0] &&
+        !GameManager.isRightCollisionBlock) {
+      adventurer.position.add(Vector2(playerVectorX, 0));
+    }
+
+    // 角色左右翻轉
+    if (moveRight && GameManager.adventurerFlipped) {
+      GameManager.adventurerFlipped = false;
+      adventurer.flipHorizontallyAroundCenter();
+    }
+
+    if (moveLeft && !GameManager.adventurerFlipped) {
+      GameManager.adventurerFlipped = true;
+      adventurer.flipHorizontallyAroundCenter();
+    }
+
+    // 背景左右翻轉
+    if (moveRight && !GameManager.isRightCollisionBlock) {
+      parallax.parallax?.baseVelocity = Vector2(backGroundBaseVelocity, 0);
+    } else if (moveLeft && !GameManager.isLeftCollisionBlock) {
+      parallax.parallax?.baseVelocity = Vector2(-backGroundBaseVelocity, 0);
+    } else {
+      parallax.parallax?.baseVelocity = Vector2.zero();
+    }
+  }
 }
 
 // Extension SpriteSheet
