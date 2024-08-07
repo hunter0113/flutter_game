@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_game/role/monster.dart';
 import 'package:flutter_game/role/adventurer.dart';
 import '../button/attackButton.dart';
-import '../components/bullet.dart';
+import '../components/arrow.dart';
 import '../manager/gamaManager.dart';
 
 class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollisionDetection, PanDetector {
@@ -96,6 +96,8 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
     var attackImage = images.fromCache(attackSrc);
     attackButton = AttackComponent(gameManager, Sprite(attackImage),
         Vector2(gameManager.screenWidth * 0.9, gameManager.screenHeight * 0.8));
+    print(gameManager.screenWidth * 0.9);
+    print(gameManager.screenHeight * 0.8);
     add(attackButton..positionType = PositionType.viewport);
   }
 
@@ -311,16 +313,16 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
   }
 
   void monsterUpdate() {
-    final Iterable<Bullet> bullets = children.whereType<Bullet>();
-    for (Bullet bullet in bullets) {
-      if (bullet.isRemoving) {
+    final Iterable<Arrow> arrows = children.whereType<Arrow>();
+    for (Arrow arrow in arrows) {
+      if (arrow.isRemoving) {
         continue;
       }
 
-      if (!monster.containsPoint(bullet.absoluteCenter)) {
+      if (!monster.containsPoint(arrow.absoluteCenter)) {
         break;
       }
-      bullet.removeFromParent();
+      arrow.removeFromParent();
       monster.loss(200);
     }
   }
@@ -352,6 +354,12 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
 
   void joystickMove(double playerVectorX, double playerVectorY, bool moveLeft, bool moveRight) {
     adventurer.current = AdventurerAction.RUN;
+
+    if (moveRight) {
+      adventurer.isFlipped = false;
+    } else if (moveLeft) {
+      adventurer.isFlipped = true;
+    }
 
     if (moveLeft && adventurer.x > 0 && !gameManager.isLeftCollisionBlock) {
       adventurer.position.add(Vector2(playerVectorX, 0));

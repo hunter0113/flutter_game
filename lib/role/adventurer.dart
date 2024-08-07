@@ -2,7 +2,7 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
-import '../components/bullet.dart';
+import '../components/arrow.dart';
 import '../components/lifeComponent.dart';
 import '../game/start_game.dart';
 import '../manager/gamaManager.dart';
@@ -20,7 +20,8 @@ class Adventurer extends SpriteAnimationGroupComponent<AdventurerAction>
     with CollisionCallbacks, Liveable, HasGameRef {
   final GameAnimationManager gameManager;
   late ShapeHitbox hitBox;
-  late Sprite bulletSprite;
+  late Sprite arrowSprite;
+  bool isFlipped = false; // 用來判斷角色朝向
 
   Adventurer({
     required this.gameManager,
@@ -46,7 +47,7 @@ class Adventurer extends SpriteAnimationGroupComponent<AdventurerAction>
     initBloodBar(lifeColor: Colors.blue, lifePoint: 1000);
 
     // 子彈
-    bulletSprite = await gameRef.loadSprite('weapon_arrow.png');
+    arrowSprite = await gameRef.loadSprite('weapon_arrow.png');
   }
 
   @override
@@ -86,19 +87,36 @@ class Adventurer extends SpriteAnimationGroupComponent<AdventurerAction>
   }
 
 
-  void _onLastFrame() async{
-
+  void _onLastFrame() async {
     animation!.currentIndex = 0;
     animation!.update(0);
 
-    // 添加子彈
-    Bullet bullet = Bullet(sprite: bulletSprite, maxRange: 300);
-    bullet.size = Vector2(32, 32);
-    bullet.anchor = Anchor.center;
-    bullet.priority = 1;
+    // 添加弓箭
+    Vector2 arrowDirection;
+    Vector2 arrowPosition;
+
+    if (isFlipped) {
+      arrowDirection = Vector2(-1, 0); // 弓箭向左
+      arrowPosition = position - Vector2(30, 0); // 朝左
+
+    } else {
+      arrowDirection = Vector2(1, 0); // 弓箭向右
+      arrowPosition = position - Vector2(-30, 0); // 朝右
+    }
+
+    Arrow arrow = Arrow(
+      sprite: arrowSprite,
+      maxRange: 300,
+      direction: arrowDirection,
+    );
+
+    arrow.size = Vector2(32, 32);
+    arrow.anchor = Anchor.center;
+    arrow.priority = 1;
+    arrow.position = arrowPosition;
     priority = 2;
-    bullet.position = position-Vector2(-30, 0);
-    gameRef.add(bullet);
+
+    gameRef.add(arrow);
   }
 
 }
