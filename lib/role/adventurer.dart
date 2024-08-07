@@ -18,10 +18,12 @@ enum AdventurerAction {
 
 class Adventurer extends SpriteAnimationGroupComponent<AdventurerAction>
     with CollisionCallbacks, Liveable, HasGameRef {
+  final GameManager gameManager;
   late ShapeHitbox hitBox;
   late Sprite bulletSprite;
 
   Adventurer({
+    required this.gameManager,
     required Map<AdventurerAction, SpriteAnimation>? animations,
     required Vector2 size,
     required Vector2 position,
@@ -64,11 +66,11 @@ class Adventurer extends SpriteAnimationGroupComponent<AdventurerAction>
     super.onCollisionStart(intersectionPoints, other);
 
     if (other.position.x > StartGame.adventurer.x) {
-      GameManager.isRightCollisionBlock = true;
+      gameManager.isRightCollisionBlock = true;
       return;
     }
 
-    GameManager.isLeftCollisionBlock = true;
+    gameManager.isLeftCollisionBlock = true;
   }
 
   @override
@@ -77,10 +79,10 @@ class Adventurer extends SpriteAnimationGroupComponent<AdventurerAction>
 
     print("onCollisionEnd start");
     if (other.position.x > StartGame.adventurer.x) {
-      GameManager.isRightCollisionBlock = false;
+      gameManager.isRightCollisionBlock = false;
       return;
     }
-    GameManager.isLeftCollisionBlock = false;
+    gameManager.isLeftCollisionBlock = false;
   }
 
 

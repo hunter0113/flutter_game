@@ -4,35 +4,35 @@ import 'package:flutter/cupertino.dart';
 import '../button/attackButton.dart';
 
 class GameManager {
-  static final double screenWidth =
-      MediaQueryData.fromWindow(window).size.width;
-  static final double screenHeight =
-      MediaQueryData.fromWindow(window).size.height;
+  final double screenWidth;
+  final double screenHeight;
 
-  static late final JoystickComponent joystick;
-  static late final AttackComponent attackButton;
+  late final JoystickComponent joystick;
+  late final AttackComponent attackButton;
 
-  static late final SpriteAnimation normalAnimation,
-      bowAttackAni,
-      swordAttackAni_One,
-      swordAttackAni_Two,
-      swordAttackAni_Three,
-      runAnimation,
-      monsterWalk,
-      monsterNormal,
-      monsterAttack,
-      monsterDeath;
+  // 角色動畫
+  late final SpriteAnimation normalAnimation;
+  late final SpriteAnimation bowAttackAni;
+  late final SpriteAnimation swordAttackAni_One;
+  late final SpriteAnimation swordAttackAni_Two;
+  late final SpriteAnimation swordAttackAni_Three;
+  late final SpriteAnimation runAnimation;
 
-  static bool adventurerFlipped = false;
-  static bool isAttack = false;
-  static bool nextAttackStep = false;
+  // 怪物動畫
+  late final SpriteAnimation monsterWalk;
+  late final SpriteAnimation monsterNormal;
+  late final SpriteAnimation monsterAttack;
+  late final SpriteAnimation monsterDeath;
 
-  static bool isLeftCollisionBlock = false;
-  static bool isRightCollisionBlock = false;
+  bool adventurerFlipped = false;
+  bool isAttack = false;
+  bool nextAttackStep = false;
 
+  bool isLeftCollisionBlock = false;
+  bool isRightCollisionBlock = false;
 
   // 背景與x座標軸上的速度
-  static final bgLayerInfo = {
+  final Map<String, double> bgLayerInfo = {
     'background_11.png': 0.5,
     'background_10.png': 0.75,
     'background_9.png': 1.0,
@@ -46,4 +46,8 @@ class GameManager {
     'background_1.png': 3.0,
     'background_0.png': 3.25,
   };
+
+  GameManager()
+      : screenWidth = MediaQueryData.fromView(window).size.width,
+        screenHeight = MediaQueryData.fromView(window).size.height;
 }
