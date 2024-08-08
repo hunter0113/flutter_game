@@ -46,7 +46,7 @@ class Adventurer extends SpriteAnimationGroupComponent<AdventurerAction>
     // 血條
     initBloodBar(lifeColor: Colors.blue, lifePoint: 1000);
 
-    // 子彈
+    // 弓箭
     arrowSprite = await gameRef.loadSprite('weapon_arrow.png');
   }
 
@@ -78,7 +78,6 @@ class Adventurer extends SpriteAnimationGroupComponent<AdventurerAction>
   void onCollisionEnd(PositionComponent other) {
     super.onCollisionEnd(other);
 
-    print("onCollisionEnd start");
     if (other.position.x > StartGame.adventurer.x) {
       gameManager.isRightCollisionBlock = false;
       return;
@@ -98,7 +97,6 @@ class Adventurer extends SpriteAnimationGroupComponent<AdventurerAction>
     if (isFlipped) {
       arrowDirection = Vector2(-1, 0); // 弓箭向左
       arrowPosition = position - Vector2(30, 0); // 朝左
-
     } else {
       arrowDirection = Vector2(1, 0); // 弓箭向右
       arrowPosition = position - Vector2(-30, 0); // 朝右
@@ -110,6 +108,10 @@ class Adventurer extends SpriteAnimationGroupComponent<AdventurerAction>
       direction: arrowDirection,
     );
 
+    if (isFlipped) {
+      arrow.flipHorizontally();
+    }
+
     arrow.size = Vector2(32, 32);
     arrow.anchor = Anchor.center;
     arrow.priority = 1;
@@ -118,5 +120,6 @@ class Adventurer extends SpriteAnimationGroupComponent<AdventurerAction>
 
     gameRef.add(arrow);
   }
+
 
 }
