@@ -11,13 +11,12 @@ import '../components/arrow.dart';
 import '../manager/game_manager.dart';
 import '../constants/game_constants.dart';
 import '../manager/animation_manager.dart';
+import '../manager/input_manager.dart';
 import '../service/asset_service.dart';
 import '../states/monster_state.dart';
 import '../states/player_state.dart';
 
 class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollisionDetection, PanDetector {
-  late final JoystickComponent joystick;
-  late final AttackButton attackButton;
   static late ParallaxComponent parallax;
   static late Adventurer adventurer;
   static late Monster monster;
@@ -25,6 +24,7 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
   late GameManager gameManager;
   late AssetService _assetService;
   late AnimationManager _animationManager;
+  late InputManager _inputManager;
 
   @override
   Future<void> onLoad() async {
@@ -32,6 +32,10 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
     gameManager = GameManager();
     _assetService = AssetService(images);
     _animationManager = AnimationManager(_assetService);
+    _inputManager = InputManager(
+      gameManager: gameManager,
+      assetService: _assetService,
+    );
 
     try {
       await _assetService.loadAllAssets();
@@ -49,11 +53,11 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
   void update(double dt) {
     super.update(dt);
 
-    bool moveLeft = joystick.relativeDelta[0] < 0;
-    bool moveRight = joystick.relativeDelta[0] > 0;
+    bool moveLeft = _inputManager.joystick.relativeDelta[0] < 0;
+    bool moveRight = _inputManager.joystick.relativeDelta[0] > 0;
 
-    double playerVectorX = (joystick.relativeDelta * (GameConstants.player.speed * 1.2) * dt)[0];
-    double playerVectorY = (joystick.relativeDelta * (GameConstants.player.speed  * 1.2) * dt)[1];
+    double playerVectorX = (_inputManager.joystick.relativeDelta * (GameConstants.player.speed * 1.2) * dt)[0];
+    double playerVectorY = (_inputManager.joystick.relativeDelta * (GameConstants.player.speed * 1.2) * dt)[1];
 
     if (monster.current == MonsterAction.death && monster.animation!.done()) {
       monster.removeFromParent();
@@ -72,7 +76,7 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
       return;
     }
 
-    if (!joystick.delta.isZero()) {
+    if (!_inputManager.joystick.delta.isZero()) {
       joystickMove(playerVectorX, playerVectorY, moveLeft, moveRight);
       return;
     }
@@ -84,23 +88,10 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
     parallax.parallax?.baseVelocity = Vector2.zero();
   }
 
-  void _setupJoystickAndButton() async {
-    final knobPaint = BasicPalette.white.withAlpha((GameConstants.ui.joystickAlpha * 255).toInt()).paint();
-    final backgroundPaint = BasicPalette.white.withAlpha((GameConstants.ui.joystickBackgroundAlpha * 255).toInt()).paint();
-    joystick = JoystickComponent(
-      knob: CircleComponent(radius: GameConstants.ui.joystickKnobRadius, paint: knobPaint),
-      background: CircleComponent(radius: GameConstants.ui.joystickBackgroundRadius, paint: backgroundPaint),
-      margin: GameConstants.ui.joystickMargin,
-    );
-    add(joystick);
-
-    final attackImage = _assetService.getImage('ui', 'attack');
-    attackButton = AttackButton(
-      gameManager,
-      Sprite(attackImage),
-      Vector2(gameManager.screenWidth * 0.9, gameManager.screenHeight * 0.8),
-    );
-    add(attackButton..positionType = PositionType.viewport);
+  void _setupJoystickAndButton() {
+    _inputManager.setupJoystickAndButton();
+    add(_inputManager.joystick);
+    add(_inputManager.attackButton..positionType = PositionType.viewport);
   }
 
   Future<void> _loadBackground() async {
