@@ -12,6 +12,8 @@ import '../manager/game_manager.dart';
 import '../constants/game_constants.dart';
 import '../manager/animation_manager.dart';
 import '../service/asset_service.dart';
+import '../states/monster_state.dart';
+import '../states/player_state.dart';
 
 class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollisionDetection, PanDetector {
   late final JoystickComponent joystick;
@@ -155,7 +157,7 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
       },
       current: MonsterAction.normal,
       position: Vector2(
-          gameManager.screenWidth * 0.8, 
+          gameManager.screenWidth * 0.8,
           gameManager.screenHeight * GameConstants.settings.screenOffsetY),
       size: GameConstants.monster.size * 2,
     );

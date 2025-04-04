@@ -1,11 +1,15 @@
 import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:flutter/cupertino.dart';
+import '../states/game_state.dart';
+import '../states/player_state.dart';
+import '../states/monster_state.dart';
 
 // 遊戲的狀態和動畫管理
 class GameManager {
   final double screenWidth;
   final double screenHeight;
+  final GameState state;
 
   // 角色動畫
   late final SpriteAnimation normalAnimation;
@@ -46,5 +50,42 @@ class GameManager {
 
   GameManager()
       : screenWidth = MediaQueryData.fromView(window).size.width,
-        screenHeight = MediaQueryData.fromView(window).size.height;
+        screenHeight = MediaQueryData.fromView(window).size.height,
+        state = GameState();
+
+  void updatePlayerState({
+    bool? isAttacking,
+    bool? isMoving,
+    bool? isFlipped,
+    AdventurerAction? currentAction,
+    int? health,
+  }) {
+    state.player.isAttacking = isAttacking ?? state.player.isAttacking;
+    state.player.isMoving = isMoving ?? state.player.isMoving;
+    state.player.isFlipped = isFlipped ?? state.player.isFlipped;
+    state.player.currentAction = currentAction ?? state.player.currentAction;
+    state.player.health = health ?? state.player.health;
+  }
+
+  void updateMonsterState({
+    MonsterAction? currentAction,
+    double? health,
+    bool? isAlive,
+  }) {
+    state.monster.currentAction = currentAction ?? state.monster.currentAction;
+    state.monster.health = health ?? state.monster.health;
+    state.monster.isAlive = isAlive ?? state.monster.isAlive;
+  }
+
+  void updateCollisionState({
+    bool? isLeftBlocked,
+    bool? isRightBlocked,
+    bool? isTopBlocked,
+    bool? isBottomBlocked,
+  }) {
+    state.collision.isLeftBlocked = isLeftBlocked ?? state.collision.isLeftBlocked;
+    state.collision.isRightBlocked = isRightBlocked ?? state.collision.isRightBlocked;
+    state.collision.isTopBlocked = isTopBlocked ?? state.collision.isTopBlocked;
+    state.collision.isBottomBlocked = isBottomBlocked ?? state.collision.isBottomBlocked;
+  }
 }

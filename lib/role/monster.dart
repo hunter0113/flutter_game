@@ -3,13 +3,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_game/components/life_component.dart';
 import 'package:flutter_game/constants/game_constants.dart';
-
-enum MonsterAction {
-  normal,
-  walk,
-  attack,
-  death
-}
+import 'package:flutter_game/states/monster_state.dart';
 
 class Monster extends SpriteAnimationGroupComponent<MonsterAction>
     with CollisionCallbacks, Liveable {
@@ -36,8 +30,17 @@ class Monster extends SpriteAnimationGroupComponent<MonsterAction>
 
     initBloodBar(
       lifeColor: GameConstants.monster.healthBarColor,
-      lifePoint: GameConstants.monster.initialHealth,
+      lifePoint: GameConstants.monster.initialHealth.toDouble(),
+      outlineColor: Colors.black,
     );
+  }
+
+  @override
+  void loss(double damage) {
+    super.loss(damage);
+    if (life <= 0) {
+      current = MonsterAction.death;
+    }
   }
 
   @override
@@ -62,5 +65,4 @@ class Monster extends SpriteAnimationGroupComponent<MonsterAction>
   void onDied() {
     current = MonsterAction.death;
   }
-
 }

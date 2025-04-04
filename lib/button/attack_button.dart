@@ -2,7 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flame/input.dart';
 import '../manager/game_manager.dart';
 import '../game/start_game.dart';
-import '../role/adventurer.dart';
+import '../states/player_state.dart';
 
 class AttackButton extends SpriteComponent with Tappable {
   final GameManager gameManager;

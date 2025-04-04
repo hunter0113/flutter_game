@@ -1,21 +1,11 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
-import 'package:flutter/material.dart';
 
 import '../components/arrow.dart';
 import '../components/life_component.dart';
-import '../game/start_game.dart';
 import '../manager/game_manager.dart';
 import '../constants/game_constants.dart';
-
-enum AdventurerAction {
-  normal,
-  run,
-  bowAttack,
-  swordAttack,
-  swordAttackTwo,
-  swordAttackThree,
-}
+import '../states/player_state.dart';
 
 class Adventurer extends SpriteAnimationGroupComponent<AdventurerAction>
     with CollisionCallbacks, Liveable, HasGameRef {
@@ -70,25 +60,24 @@ class Adventurer extends SpriteAnimationGroupComponent<AdventurerAction>
   ) {
     super.onCollisionStart(intersectionPoints, other);
 
-    if (other.position.x > StartGame.adventurer.x) {
-      gameManager.isRightCollisionBlock = true;
+    if (other.position.x > position.x) {
+      gameManager.updateCollisionState(isRightBlocked: true);
       return;
     }
 
-    gameManager.isLeftCollisionBlock = true;
+    gameManager.updateCollisionState(isLeftBlocked: true);
   }
 
   @override
   void onCollisionEnd(PositionComponent other) {
     super.onCollisionEnd(other);
 
-    if (other.position.x > StartGame.adventurer.x) {
-      gameManager.isRightCollisionBlock = false;
+    if (other.position.x > position.x) {
+      gameManager.updateCollisionState(isRightBlocked: false);
       return;
     }
-    gameManager.isLeftCollisionBlock = false;
+    gameManager.updateCollisionState(isLeftBlocked: false);
   }
-
 
   void _onLastFrame() async {
     animation!.currentIndex = 0;
@@ -108,22 +97,19 @@ class Adventurer extends SpriteAnimationGroupComponent<AdventurerAction>
 
     Arrow arrow = Arrow(
       sprite: arrowSprite,
-      maxRange: 300,
       direction: arrowDirection,
+      maxRange: 300.0,
     );
+
+    arrow.position = arrowPosition;
+    arrow.size = Vector2(32, 32);
+    arrow.anchor = Anchor.center;
+    arrow.priority = 1;
 
     if (isFlipped) {
       arrow.flipHorizontally();
     }
 
-    arrow.size = Vector2(32, 32);
-    arrow.anchor = Anchor.center;
-    arrow.priority = 1;
-    arrow.position = arrowPosition;
-    priority = 2;
-
     gameRef.add(arrow);
   }
-
-
 }
