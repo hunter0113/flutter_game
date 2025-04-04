@@ -1,13 +1,13 @@
 import 'package:flame/components.dart';
 import 'package:flame/input.dart';
-import '../manager/gamaManager.dart';
+import '../manager/game_manager.dart';
 import '../game/start_game.dart';
 import '../role/adventurer.dart';
 
-class AttackComponent extends SpriteComponent with Tappable {
-  final GameAnimationManager gameManager;
+class AttackButton extends SpriteComponent with Tappable {
+  final GameManager gameManager;
 
-  AttackComponent(this.gameManager, Sprite sprite, Vector2 position)
+  AttackButton(this.gameManager, Sprite sprite, Vector2 position)
       : super(
     position: position,
     size: Vector2(50, 50),
@@ -21,17 +21,17 @@ class AttackComponent extends SpriteComponent with Tappable {
     StartGame.parallax.parallax?.baseVelocity = Vector2.zero();
 
     switch (StartGame.adventurer.current) {
-      case AdventurerAction.SWORD_ATTACK_ONE:
+      case AdventurerAction.swordAttack:
         gameManager.nextAttackStep = true;
         break;
-      case AdventurerAction.SWORD_ATTACK_TWO:
+      case AdventurerAction.swordAttackTwo:
         gameManager.nextAttackStep = true;
         break;
-      case AdventurerAction.SWORD_ATTACK_THREE:
+      case AdventurerAction.swordAttackThree:
         gameManager.nextAttackStep = true;
         break;
       default:
-        StartGame.adventurer.current = AdventurerAction.BOW_ATTACK;
+        StartGame.adventurer.current = AdventurerAction.bowAttack;
         break;
     }
     return true;

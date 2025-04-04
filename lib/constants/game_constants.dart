@@ -3,34 +3,22 @@ import 'package:flutter/material.dart';
 
 class GameConstants {
   // 遊戲基本設定
-  static const double BACKGROUND_BASE_VELOCITY = 10.0;
-  static const double PLAYER_SPEED = 120.0;
-
-  // 螢幕位置相關
-  static const double SCREEN_OFFSET_X = 0.3;
-  static const double SCREEN_OFFSET_Y = 0.8;
-
-  // 角色大小設定
-  static Vector2 get PLAYER_SIZE => Vector2(50, 37);
-  static Vector2 get MONSTER_SIZE => Vector2(48, 37);
-
-  // 動畫相關設定
-  static const double NORMAL_ANIMATION_STEP_TIME = 0.2;
-  static const double ATTACK_ANIMATION_STEP_TIME = 0.08;
-  static const double RUN_ANIMATION_STEP_TIME = 0.1;
-
-  // UI 相關設定
-  static const double JOYSTICK_KNOB_RADIUS = 24.0;
-  static const double JOYSTICK_BACKGROUND_RADIUS = 50.0;
-  static const EdgeInsets JOYSTICK_MARGIN = EdgeInsets.only(left: 30, bottom: 40);
-  static const int JOYSTICK_ALPHA = 200;
-  static const int JOYSTICK_BACKGROUND_ALPHA = 100;
-
+  static const GameSettings settings = GameSettings();
+  
+  // 玩家相關設定
+  static final PlayerSettings player = PlayerSettings();
+  
   // 怪物相關設定
-  static const double MONSTER_ARROW_DAMAGE = 200.0;
-
+  static final MonsterSettings monster = MonsterSettings();
+  
+  // UI 相關設定
+  static const UISettings ui = UISettings();
+  
+  // 動畫相關設定
+  static const AnimationSettings animation = AnimationSettings();
+  
   // 精靈表設定
-  static const Map<String, SpriteSheetData> SPRITE_SHEETS = {
+  static const Map<String, SpriteSheetData> spriteSheets = {
     'player_normal': SpriteSheetData(columns: 7, rows: 18),
     'player_bow': SpriteSheetData(columns: 4, rows: 4),
     'player_run': SpriteSheetData(columns: 6, rows: 1),
@@ -39,6 +27,59 @@ class GameConstants {
     'monster_attack': SpriteSheetData(columns: 12, rows: 1),
     'monster_death': SpriteSheetData(columns: 14, rows: 1),
   };
+}
+
+// 遊戲基本設定
+class GameSettings {
+  final double backgroundBaseVelocity = 10.0;
+  final double screenOffsetX = 0.3;
+  final double screenOffsetY = 0.8;
+
+  const GameSettings();
+}
+
+// 玩家相關設定
+class PlayerSettings {
+  final double speed = 120.0;
+  final Vector2 size = Vector2(50, 37);
+  final double initialHealth = 1000.0;
+  final Color healthBarColor = Colors.blue;
+
+  PlayerSettings();
+}
+
+// 怪物相關設定
+class MonsterSettings {
+  final double arrowDamage = 200.0;
+  final Vector2 size = Vector2(48, 37);
+  final double initialHealth = 1000.0;
+  final Color healthBarColor = Colors.red;
+
+  MonsterSettings();
+}
+
+// UI 相關設定
+class UISettings {
+  final double joystickKnobRadius = 24.0;
+  final double joystickBackgroundRadius = 50.0;
+  final EdgeInsets joystickMargin = const EdgeInsets.only(left: 30, bottom: 40);
+  final double joystickAlpha = 0.5;
+  final double joystickBackgroundAlpha = 0.3;
+  final double attackButtonSize = 50.0;
+
+  const UISettings();
+}
+
+// 動畫相關設定
+class AnimationSettings {
+  final double normalStepTime = 0.2;
+  final double attackStepTime = 0.08;
+  final double runStepTime = 0.1;
+  final double monsterWalkStepTime = 0.1;
+  final double monsterAttackStepTime = 0.08;
+  final double monsterDeathStepTime = 0.2;
+
+  const AnimationSettings();
 }
 
 // 精靈表數據

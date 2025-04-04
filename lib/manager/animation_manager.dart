@@ -7,10 +7,10 @@ import '../service/asset_service.dart';
 class AnimationManager {
   late SpriteAnimation normalAnimation;
   late SpriteAnimation runAnimation;
-  late SpriteAnimation bowAttackAni;
-  late SpriteAnimation swordAttackAni_One;
-  late SpriteAnimation swordAttackAni_Two;
-  late SpriteAnimation swordAttackAni_Three;
+  late SpriteAnimation bowAttackAnimation;
+  late SpriteAnimation swordAttackAnimationOne;
+  late SpriteAnimation swordAttackAnimationTwo;
+  late SpriteAnimation swordAttackAnimationThree;
   late SpriteAnimation monsterNormal;
   late SpriteAnimation monsterWalk;
   late SpriteAnimation monsterAttack;
@@ -21,7 +21,7 @@ class AnimationManager {
   AnimationManager(this._assetService);
 
   Future<void> loadPlayerAnimations() async {
-    final spriteSheetData = GameConstants.SPRITE_SHEETS['player_normal']!;
+    final spriteSheetData = GameConstants.spriteSheets['player_normal']!;
     final allSpriteSheet = _assetService.createSpriteSheet(
       category: 'player',
       type: 'normal',
@@ -33,35 +33,35 @@ class AnimationManager {
     final normalSprites = allSpriteSheet.getRowSprites(row: 0, start: 0, count: 4);
     normalAnimation = SpriteAnimation.spriteList(
       normalSprites,
-      stepTime: GameConstants.NORMAL_ANIMATION_STEP_TIME,
+      stepTime: GameConstants.animation.normalStepTime,
       loop: true,
     );
 
     // 攻擊動畫
     final attackSpritesOne = allSpriteSheet.getRowSprites(row: 6, start: 0, count: 6);
-    swordAttackAni_One = SpriteAnimation.spriteList(
+    swordAttackAnimationOne = SpriteAnimation.spriteList(
       attackSpritesOne,
-      stepTime: GameConstants.ATTACK_ANIMATION_STEP_TIME,
+      stepTime: GameConstants.animation.attackStepTime,
       loop: false,
     );
 
     final attackSpritesTwo = allSpriteSheet.getRowSprites(row: 7, start: 0, count: 4);
-    swordAttackAni_Two = SpriteAnimation.spriteList(
+    swordAttackAnimationTwo = SpriteAnimation.spriteList(
       attackSpritesTwo,
-      stepTime: GameConstants.ATTACK_ANIMATION_STEP_TIME,
+      stepTime: GameConstants.animation.attackStepTime,
       loop: false,
     );
 
     final attackSpritesThree = allSpriteSheet.getRowSprites(row: 7, start: 4, count: 3)
       ..addAll(allSpriteSheet.getRowSprites(row: 8, start: 0, count: 3));
-    swordAttackAni_Three = SpriteAnimation.spriteList(
+    swordAttackAnimationThree = SpriteAnimation.spriteList(
       attackSpritesThree,
-      stepTime: GameConstants.ATTACK_ANIMATION_STEP_TIME,
+      stepTime: GameConstants.animation.attackStepTime,
       loop: false,
     );
 
     // 弓箭動畫
-    final bowSheetData = GameConstants.SPRITE_SHEETS['player_bow']!;
+    final bowSheetData = GameConstants.spriteSheets['player_bow']!;
     final bowSheet = _assetService.createSpriteSheet(
       category: 'player',
       type: 'bow',
@@ -72,14 +72,14 @@ class AnimationManager {
     final bowSprites = bowSheet.getRowSprites(row: 0, start: 0, count: 4)
       ..addAll(bowSheet.getRowSprites(row: 1, start: 0, count: 4))
       ..addAll(bowSheet.getRowSprites(row: 2, start: 0, count: 1));
-    bowAttackAni = SpriteAnimation.spriteList(
+    bowAttackAnimation = SpriteAnimation.spriteList(
       bowSprites,
-      stepTime: GameConstants.ATTACK_ANIMATION_STEP_TIME,
+      stepTime: GameConstants.animation.attackStepTime,
       loop: false,
     );
 
     // 跑步動畫
-    final runSheetData = GameConstants.SPRITE_SHEETS['player_run']!;
+    final runSheetData = GameConstants.spriteSheets['player_run']!;
     final runSheet = _assetService.createSpriteSheet(
       category: 'player',
       type: 'run',
@@ -90,14 +90,14 @@ class AnimationManager {
     final runSprites = runSheet.getRowSprites(row: 0, start: 0, count: 6);
     runAnimation = SpriteAnimation.spriteList(
       runSprites,
-      stepTime: GameConstants.RUN_ANIMATION_STEP_TIME,
+      stepTime: GameConstants.animation.runStepTime,
       loop: true,
     );
   }
 
   Future<void> loadMonsterAnimations() async {
     // 普通動畫
-    final normalSheetData = GameConstants.SPRITE_SHEETS['monster_normal']!;
+    final normalSheetData = GameConstants.spriteSheets['monster_normal']!;
     final monsterNormalSheet = _assetService.createSpriteSheet(
       category: 'monster',
       type: 'normal',
@@ -108,12 +108,12 @@ class AnimationManager {
     final monsterNormalSprites = monsterNormalSheet.getRowSprites(row: 0, start: 0, count: 10);
     monsterNormal = SpriteAnimation.spriteList(
       monsterNormalSprites,
-      stepTime: GameConstants.NORMAL_ANIMATION_STEP_TIME,
+      stepTime: GameConstants.animation.normalStepTime,
       loop: true,
     );
 
     // 走路動畫
-    final walkSheetData = GameConstants.SPRITE_SHEETS['monster_walk']!;
+    final walkSheetData = GameConstants.spriteSheets['monster_walk']!;
     final monsterWalkSheet = _assetService.createSpriteSheet(
       category: 'monster',
       type: 'walk',
@@ -124,12 +124,12 @@ class AnimationManager {
     final monsterWalkSprites = monsterWalkSheet.getRowSprites(row: 0, start: 0, count: 9);
     monsterWalk = SpriteAnimation.spriteList(
       monsterWalkSprites,
-      stepTime: GameConstants.RUN_ANIMATION_STEP_TIME,
+      stepTime: GameConstants.animation.monsterWalkStepTime,
       loop: true,
     );
 
     // 攻擊動畫
-    final attackSheetData = GameConstants.SPRITE_SHEETS['monster_attack']!;
+    final attackSheetData = GameConstants.spriteSheets['monster_attack']!;
     final monsterAttackSheet = _assetService.createSpriteSheet(
       category: 'monster',
       type: 'attack',
@@ -140,12 +140,12 @@ class AnimationManager {
     final monsterAttackSprites = monsterAttackSheet.getRowSprites(row: 0, start: 0, count: 12);
     monsterAttack = SpriteAnimation.spriteList(
       monsterAttackSprites,
-      stepTime: GameConstants.ATTACK_ANIMATION_STEP_TIME,
+      stepTime: GameConstants.animation.monsterAttackStepTime,
       loop: true,
     );
 
     // 死亡動畫
-    final deathSheetData = GameConstants.SPRITE_SHEETS['monster_death']!;
+    final deathSheetData = GameConstants.spriteSheets['monster_death']!;
     final monsterDeathSheet = _assetService.createSpriteSheet(
       category: 'monster',
       type: 'death',
@@ -156,7 +156,7 @@ class AnimationManager {
     final monsterDeathSprites = monsterDeathSheet.getRowSprites(row: 0, start: 0, count: 12);
     monsterDeath = SpriteAnimation.spriteList(
       monsterDeathSprites,
-      stepTime: GameConstants.NORMAL_ANIMATION_STEP_TIME,
+      stepTime: GameConstants.animation.monsterDeathStepTime,
       loop: false,
     );
   }

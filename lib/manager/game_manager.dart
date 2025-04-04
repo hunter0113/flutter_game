@@ -3,7 +3,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/cupertino.dart';
 
 // 遊戲的狀態和動畫管理
-class GameAnimationManager {
+class GameManager {
   final double screenWidth;
   final double screenHeight;
 
@@ -44,7 +44,7 @@ class GameAnimationManager {
     'background_0.png': 3.25,
   };
 
-  GameAnimationManager()
+  GameManager()
       : screenWidth = MediaQueryData.fromView(window).size.width,
         screenHeight = MediaQueryData.fromView(window).size.height;
 }

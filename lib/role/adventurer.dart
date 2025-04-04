@@ -3,22 +3,23 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
 import '../components/arrow.dart';
-import '../components/lifeComponent.dart';
+import '../components/life_component.dart';
 import '../game/start_game.dart';
-import '../manager/gamaManager.dart';
+import '../manager/game_manager.dart';
+import '../constants/game_constants.dart';
 
 enum AdventurerAction {
-  NORMAL,
-  RUN,
-  BOW_ATTACK,
-  SWORD_ATTACK_ONE,
-  SWORD_ATTACK_TWO,
-  SWORD_ATTACK_THREE,
+  normal,
+  run,
+  bowAttack,
+  swordAttack,
+  swordAttackTwo,
+  swordAttackThree,
 }
 
 class Adventurer extends SpriteAnimationGroupComponent<AdventurerAction>
     with CollisionCallbacks, Liveable, HasGameRef {
-  final GameAnimationManager gameManager;
+  final GameManager gameManager;
   late ShapeHitbox hitBox;
   late Sprite arrowSprite;
   bool isFlipped = false; // 用來判斷角色朝向
@@ -44,7 +45,10 @@ class Adventurer extends SpriteAnimationGroupComponent<AdventurerAction>
     add(CircleHitbox());
 
     // 血條
-    initBloodBar(lifeColor: Colors.blue, lifePoint: 1000);
+    initBloodBar(
+      lifeColor: GameConstants.player.healthBarColor,
+      lifePoint: GameConstants.player.initialHealth,
+    );
 
     // 弓箭
     arrowSprite = await gameRef.loadSprite('weapon_arrow.png');
@@ -54,7 +58,7 @@ class Adventurer extends SpriteAnimationGroupComponent<AdventurerAction>
   void update(double dt) {
     super.update(dt);
 
-    if(current == AdventurerAction.BOW_ATTACK && animation!.done()){
+    if(current == AdventurerAction.bowAttack && animation!.done()){
       _onLastFrame();
     }
   }

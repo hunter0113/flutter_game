@@ -5,7 +5,7 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
-import 'damageText.dart';
+import 'damage_text.dart';
 
 mixin Liveable on PositionComponent {
   final Paint _outlinePaint = Paint();

@@ -1,13 +1,14 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_game/components/lifeComponent.dart';
+import 'package:flutter_game/components/life_component.dart';
+import 'package:flutter_game/constants/game_constants.dart';
 
 enum MonsterAction {
-  NORMAL,
-  WALK,
-  ATTACK,
-  DEATH
+  normal,
+  walk,
+  attack,
+  death
 }
 
 class Monster extends SpriteAnimationGroupComponent<MonsterAction>
@@ -33,7 +34,10 @@ class Monster extends SpriteAnimationGroupComponent<MonsterAction>
     add(CircleHitbox()..debugMode = true);
     add(CircleHitbox());
 
-    initBloodBar(lifeColor: Colors.red, lifePoint: 1000);
+    initBloodBar(
+      lifeColor: GameConstants.monster.healthBarColor,
+      lifePoint: GameConstants.monster.initialHealth,
+    );
   }
 
   @override
@@ -56,7 +60,7 @@ class Monster extends SpriteAnimationGroupComponent<MonsterAction>
 
   @override
   void onDied() {
-    current = MonsterAction.DEATH;
+    current = MonsterAction.death;
   }
 
 }
