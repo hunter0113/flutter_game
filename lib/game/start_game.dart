@@ -12,6 +12,7 @@ import '../manager/game_manager.dart';
 import '../constants/game_constants.dart';
 import '../manager/animation_manager.dart';
 import '../manager/input_manager.dart';
+import '../manager/asset_load_manager.dart';
 import '../service/asset_service.dart';
 import '../states/monster_state.dart';
 import '../states/player_state.dart';
@@ -25,6 +26,7 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
   late AssetService _assetService;
   late AnimationManager _animationManager;
   late InputManager _inputManager;
+  late AssetLoadManager _assetLoadManager;
 
   @override
   Future<void> onLoad() async {
@@ -36,17 +38,48 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
       gameManager: gameManager,
       assetService: _assetService,
     );
+    _assetLoadManager = AssetLoadManager(
+      gameManager: gameManager,
+      assetService: _assetService,
+      animationManager: _animationManager,
+    );
 
     try {
       await _assetService.loadAllAssets();
       await _loadBackground();
-      await _loadPlayer();
-      await _loadMonster();
+      await _loadGameAssets();
       _setupCamera();
       _setupJoystickAndButton();
     } catch (e) {
       print('遊戲初始化失敗: $e');
     }
+  }
+
+  Future<void> _loadBackground() async {
+    final layers = gameManager.bgLayerInfo.entries.map(
+          (entry) => loadParallaxLayer(
+        ParallaxImageData(entry.key),
+        velocityMultiplier: Vector2(entry.value, 0),
+      ),
+    );
+
+    parallax = ParallaxComponent(
+      parallax: Parallax(
+        await Future.wait(layers),
+        baseVelocity: Vector2(GameConstants.settings.backgroundBaseVelocity, 0),
+      ),
+    );
+
+    parallax.parallax?.baseVelocity = Vector2.zero();
+    add(parallax);
+  }
+
+  Future<void> _loadGameAssets() async {
+    adventurer = await _assetLoadManager.loadPlayer();
+    add(adventurer);
+
+    monster = await _assetLoadManager.loadMonster();
+    add(monster);
   }
 
   @override
@@ -81,9 +114,6 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
       return;
     }
 
-    if (gameManager.isAttack) {
-      return;
-    }
     adventurer.current = AdventurerAction.normal;
     parallax.parallax?.baseVelocity = Vector2.zero();
   }
@@ -92,68 +122,6 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
     _inputManager.setupJoystickAndButton();
     add(_inputManager.joystick);
     add(_inputManager.attackButton..positionType = PositionType.viewport);
-  }
-
-  Future<void> _loadBackground() async {
-    final layers = gameManager.bgLayerInfo.entries.map(
-          (entry) => loadParallaxLayer(
-        ParallaxImageData(entry.key),
-        velocityMultiplier: Vector2(entry.value, 0),
-      ),
-    );
-
-    parallax = ParallaxComponent(
-      parallax: Parallax(
-        await Future.wait(layers),
-        baseVelocity: Vector2(GameConstants.settings.backgroundBaseVelocity, 0),
-      ),
-    );
-
-    parallax.parallax?.baseVelocity = Vector2.zero();
-    add(parallax);
-  }
-
-  Future<void> _loadPlayer() async {
-    await _animationManager.loadPlayerAnimations();
-
-    adventurer = Adventurer(
-      gameManager: gameManager,
-      animations: {
-        AdventurerAction.normal: _animationManager.normalAnimation,
-        AdventurerAction.run: _animationManager.runAnimation,
-        AdventurerAction.bowAttack: _animationManager.bowAttackAnimation,
-        AdventurerAction.swordAttack: _animationManager.swordAttackAnimationOne,
-        AdventurerAction.swordAttackTwo: _animationManager.swordAttackAnimationTwo,
-        AdventurerAction.swordAttackThree: _animationManager.swordAttackAnimationThree,
-      },
-      current: AdventurerAction.normal,
-      position: Vector2(
-          gameManager.screenWidth * GameConstants.settings.screenOffsetX,
-          gameManager.screenHeight * GameConstants.settings.screenOffsetY),
-      size: GameConstants.player.size * 2,
-    );
-
-    add(adventurer);
-  }
-
-  Future<void> _loadMonster() async {
-    await _animationManager.loadMonsterAnimations();
-
-    monster = Monster(
-      animations: {
-        MonsterAction.normal: _animationManager.monsterNormal,
-        MonsterAction.walk: _animationManager.monsterWalk,
-        MonsterAction.attack: _animationManager.monsterAttack,
-        MonsterAction.death: _animationManager.monsterDeath,
-      },
-      current: MonsterAction.normal,
-      position: Vector2(
-          gameManager.screenWidth * 0.8,
-          gameManager.screenHeight * GameConstants.settings.screenOffsetY),
-      size: GameConstants.monster.size * 2,
-    );
-
-    add(monster);
   }
 
   void _setupCamera() {
