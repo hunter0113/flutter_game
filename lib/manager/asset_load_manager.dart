@@ -2,7 +2,7 @@ import 'package:flame/components.dart';
 
 import '../constants/game_constants.dart';
 import '../manager/animation_manager.dart';
-import '../manager/game_manager.dart';
+import '../interfaces/game_manager_interface.dart';
 import '../role/adventurer.dart';
 import '../role/monster.dart';
 import '../service/asset_service.dart';
@@ -10,7 +10,7 @@ import '../states/monster_state.dart';
 import '../states/player_state.dart';
 
 class AssetLoadManager {
-  final GameManager gameManager;
+  final IGameManager gameManager;
   final AssetService assetService;
   final AnimationManager animationManager;
 

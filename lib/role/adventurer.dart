@@ -3,13 +3,13 @@ import 'package:flame/components.dart';
 
 import '../components/arrow.dart';
 import '../components/life_component.dart';
-import '../manager/game_manager.dart';
+import '../interfaces/game_manager_interface.dart';
 import '../constants/game_constants.dart';
 import '../states/player_state.dart';
 
 class Adventurer extends SpriteAnimationGroupComponent<AdventurerAction>
     with CollisionCallbacks, Liveable, HasGameRef {
-  final GameManager gameManager;
+  final IGameManager gameManager;
   late ShapeHitbox hitBox;
   late Sprite arrowSprite;
   bool isFlipped = false; // 用來判斷角色朝向

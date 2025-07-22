@@ -2,7 +2,7 @@ import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'game/start_game.dart';
+import 'game/riverpod_start_game.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,18 +14,16 @@ void main() async {
   // 使用 ProviderScope 包裝整個應用以支援 Riverpod
   runApp(
     ProviderScope(
-      child: MyGameApp(),
+      child: RiverpodGameApp(),
     ),
   );
 }
 
-class MyGameApp extends ConsumerWidget {
-  const MyGameApp({super.key});
+class RiverpodGameApp extends ConsumerWidget {
+  const RiverpodGameApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return GameWidget(game: StartGame());
+    return GameWidget(game: RiverpodStartGame());
   }
-}
-
-
+} 

@@ -4,9 +4,10 @@ import 'package:flutter/cupertino.dart';
 import '../states/game_state.dart';
 import '../states/player_state.dart';
 import '../states/monster_state.dart';
+import '../interfaces/game_manager_interface.dart';
 
 // 遊戲的狀態和動畫管理
-class GameManager {
+class GameManager implements IGameManager {
   final double screenWidth;
   final double screenHeight;
   final GameState state;
