@@ -1,7 +1,6 @@
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'game/start_game.dart';
 
 void main() async {
@@ -11,21 +10,8 @@ void main() async {
   await Flame.device.fullScreen();
   await Flame.device.setLandscape();
 
-  // 使用 ProviderScope 包裝整個應用以支援 Riverpod
-  runApp(
-    ProviderScope(
-      child: MyGameApp(),
-    ),
-  );
-}
-
-class MyGameApp extends ConsumerWidget {
-  const MyGameApp({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return GameWidget(game: StartGame());
-  }
+  
+  runApp(GameWidget(game: StartGame()));
 }
 
 

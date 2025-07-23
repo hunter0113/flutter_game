@@ -6,11 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../role/monster.dart';
 import '../role/adventurer.dart';
-import '../managers/riverpod_game_manager.dart';
+import '../manager/riverpod_game_manager.dart';
 import '../manager/animation_manager.dart';
 import '../manager/riverpod_input_manager.dart';
 import '../manager/asset_load_manager.dart';
-import '../managers/background_manager.dart';
+import '../manager/background_manager.dart';
 import '../service/asset_service.dart';
 import '../controllers/riverpod_game_loop_controller.dart';
 import '../exceptions/game_exceptions.dart';

@@ -1,5 +1,5 @@
 import 'package:flame/components.dart';
-import '../managers/riverpod_game_manager.dart';
+import '../manager/riverpod_game_manager.dart';
 import '../manager/riverpod_input_manager.dart';
 import '../role/adventurer.dart';
 import '../role/monster.dart';

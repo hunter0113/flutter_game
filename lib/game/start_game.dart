@@ -9,7 +9,7 @@ import '../manager/game_manager.dart';
 import '../manager/animation_manager.dart';
 import '../manager/input_manager.dart';
 import '../manager/asset_load_manager.dart';
-import '../managers/background_manager.dart';
+import '../manager/background_manager.dart';
 import '../service/asset_service.dart';
 import '../states/monster_state.dart';
 import '../controllers/game_loop_controller.dart';

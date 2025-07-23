@@ -1,6 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flame/input.dart';
-import '../managers/riverpod_game_manager.dart';
+import '../manager/riverpod_game_manager.dart';
 import '../role/adventurer.dart';
 import '../states/player_state.dart';
 

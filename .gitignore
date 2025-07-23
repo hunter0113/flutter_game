@@ -560,9 +560,5 @@ build/app/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
 build/app/tmp/packLibsflutterBuildDebug/MANIFEST.MF
 .dart_tool/flutter_build/f3f93526e0b81f27bcc4614089df0896/.filecache
 .dart_tool/flutter_build/f3f93526e0b81f27bcc4614089df0896/app.dill
-memory-bank/activeContext.md
-memory-bank/productContext.md
-memory-bank/progress.md
-memory-bank/projectbrief.md
-memory-bank/systemPatterns.md
-memory-bank/techContext.md
+# memory-bank 文檔現在被正確追蹤
+# 如需忽略特定文檔，請在此處添加

@@ -10,10 +10,14 @@
 lib/
 ├── interfaces/
 │   └── game_manager_interface.dart      # 遊戲管理器接口
-├── managers/
-│   └── riverpod_game_manager.dart       # Riverpod 遊戲管理器
 ├── manager/
-│   └── riverpod_input_manager.dart      # Riverpod 輸入管理器
+│   ├── riverpod_game_manager.dart       # Riverpod 遊戲管理器
+│   ├── background_manager.dart          # 背景管理器
+│   ├── riverpod_input_manager.dart      # Riverpod 輸入管理器
+│   ├── game_manager.dart                # 傳統遊戲管理器
+│   ├── input_manager.dart               # 傳統輸入管理器
+│   ├── animation_manager.dart           # 動畫管理器
+│   └── asset_load_manager.dart          # 資源載入管理器
 ├── button/
 │   └── riverpod_attack_button.dart      # Riverpod 攻擊按鈕
 ├── controllers/
@@ -27,8 +31,7 @@ lib/
 │   ├── collision_providers.dart         # 碰撞狀態管理
 │   ├── game_providers.dart              # 遊戲狀態管理
 │   └── README.md                        # 使用文檔
-├── examples/
-│   └── riverpod_usage_example.dart      # 使用範例
+
 ├── main_riverpod.dart                   # 新的主程式入口
 └── MIGRATION_COMPLETE.md                # 本文檔
 ```
@@ -279,8 +282,8 @@ testWidgets('遊戲狀態顯示測試', (tester) async {
 
 ### 1. **立即可做**
 - 🎯 運行 `flutter run lib/main_riverpod.dart` 測試新版本
-- 🎯 查看 `lib/examples/riverpod_usage_example.dart` 學習用法
 - 🎯 閱讀 `lib/providers/README.md` 了解詳細 API
+- 🎯 參考各提供者中的文檔註釋學習用法
 
 ### 2. **進階開發**
 - 🚀 添加更多遊戲特定狀態（道具、技能、關卡）

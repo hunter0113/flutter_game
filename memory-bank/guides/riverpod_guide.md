@@ -120,7 +120,7 @@ ref.read(collisionStateProvider.notifier).reset();
 
 ## 使用範例
 
-完整的使用範例請查看 `lib/examples/riverpod_usage_example.dart`
+以下是基本的使用範例，更多詳細用法請參考各個提供者的文檔註釋。
 
 ## 在遊戲中整合
 

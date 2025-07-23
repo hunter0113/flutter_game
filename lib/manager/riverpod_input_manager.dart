@@ -4,7 +4,7 @@ import 'package:flame/palette.dart';
 
 import '../button/riverpod_attack_button.dart';
 import '../constants/game_constants.dart';
-import '../managers/riverpod_game_manager.dart';
+import '../manager/riverpod_game_manager.dart';
 import '../service/asset_service.dart';
 import '../role/adventurer.dart';
 import '../states/player_state.dart';
