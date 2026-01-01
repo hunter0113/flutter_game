@@ -1,27 +1,21 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
-import 'package:flutter/material.dart';
 
-import '../components/bullet.dart';
-import '../components/lifeComponent.dart';
-import '../game/start_game.dart';
-import '../manager/gamaManager.dart';
-
-enum AdventurerAction {
-  NORMAL,
-  RUN,
-  BOW_ATTACK,
-  SWORD_ATTACK_ONE,
-  SWORD_ATTACK_TWO,
-  SWORD_ATTACK_THREE,
-}
+import '../components/arrow.dart';
+import '../components/life_component.dart';
+import '../interfaces/game_manager_interface.dart';
+import '../constants/game_constants.dart';
+import '../states/player_state.dart';
 
 class Adventurer extends SpriteAnimationGroupComponent<AdventurerAction>
     with CollisionCallbacks, Liveable, HasGameRef {
+  final IGameManager gameManager;
   late ShapeHitbox hitBox;
-  late Sprite bulletSprite;
+  late Sprite arrowSprite;
+  bool isFlipped = false; // 用來判斷角色朝向
 
   Adventurer({
+    required this.gameManager,
     required Map<AdventurerAction, SpriteAnimation>? animations,
     required Vector2 size,
     required Vector2 position,
@@ -41,17 +35,20 @@ class Adventurer extends SpriteAnimationGroupComponent<AdventurerAction>
     add(CircleHitbox());
 
     // 血條
-    initBloodBar(lifeColor: Colors.blue, lifePoint: 1000);
+    initBloodBar(
+      lifeColor: GameConstants.player.healthBarColor,
+      lifePoint: GameConstants.player.initialHealth,
+    );
 
-    // 子彈
-    bulletSprite = await gameRef.loadSprite('weapon_arrow.png');
+    // 弓箭
+    arrowSprite = await gameRef.loadSprite('weapon_arrow.png');
   }
 
   @override
   void update(double dt) {
     super.update(dt);
 
-    if(current == AdventurerAction.BOW_ATTACK && animation!.done()){
+    if(current == AdventurerAction.bowAttack && animation!.done()){
       _onLastFrame();
     }
   }
@@ -63,40 +60,56 @@ class Adventurer extends SpriteAnimationGroupComponent<AdventurerAction>
   ) {
     super.onCollisionStart(intersectionPoints, other);
 
-    if (other.position.x > StartGame.adventurer.x) {
-      GameManager.isRightCollisionBlock = true;
+    if (other.position.x > position.x) {
+      gameManager.updateCollisionState(isRightBlocked: true);
       return;
     }
 
-    GameManager.isLeftCollisionBlock = true;
+    gameManager.updateCollisionState(isLeftBlocked: true);
   }
 
   @override
   void onCollisionEnd(PositionComponent other) {
     super.onCollisionEnd(other);
 
-    print("onCollisionEnd start");
-    if (other.position.x > StartGame.adventurer.x) {
-      GameManager.isRightCollisionBlock = false;
+    if (other.position.x > position.x) {
+      gameManager.updateCollisionState(isRightBlocked: false);
       return;
     }
-    GameManager.isLeftCollisionBlock = false;
+    gameManager.updateCollisionState(isLeftBlocked: false);
   }
 
-
-  void _onLastFrame() async{
-
+  void _onLastFrame() async {
     animation!.currentIndex = 0;
     animation!.update(0);
 
-    // 添加子彈
-    Bullet bullet = Bullet(sprite: bulletSprite, maxRange: 300);
-    bullet.size = Vector2(32, 32);
-    bullet.anchor = Anchor.center;
-    bullet.priority = 1;
-    priority = 2;
-    bullet.position = position-Vector2(-30, 0);
-    gameRef.add(bullet);
-  }
+    // 添加弓箭
+    Vector2 arrowDirection;
+    Vector2 arrowPosition;
 
+    if (isFlipped) {
+      arrowDirection = Vector2(-1, 0); // 弓箭向左
+      arrowPosition = position - Vector2(30, 0); // 朝左
+    } else {
+      arrowDirection = Vector2(1, 0); // 弓箭向右
+      arrowPosition = position - Vector2(-30, 0); // 朝右
+    }
+
+    Arrow arrow = Arrow(
+      sprite: arrowSprite,
+      direction: arrowDirection,
+      maxRange: 300.0,
+    );
+
+    arrow.position = arrowPosition;
+    arrow.size = Vector2(32, 32);
+    arrow.anchor = Anchor.center;
+    arrow.priority = 1;
+
+    if (isFlipped) {
+      arrow.flipHorizontally();
+    }
+
+    gameRef.add(arrow);
+  }
 }

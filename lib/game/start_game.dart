@@ -1,397 +1,151 @@
 import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
-import 'package:flame/palette.dart';
 import 'package:flame/parallax.dart';
-import 'package:flame/sprite.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_game/manager/gamaManager.dart';
-import 'package:flutter_game/role/monster.dart';
-import 'package:flutter_game/role/adventurer.dart';
-import '../button/attackButton.dart';
-import '../components/bullet.dart';
 
-class StartGame extends FlameGame
-    with HasDraggables, HasTappables, HasCollisionDetection, PanDetector {
-  var backGroundBaseVelocity = 10.0;
-  var playerSpeed = 120.0;
-  int ZERO = 0;
+import '../role/monster.dart';
+import '../role/adventurer.dart';
+import '../manager/game_manager.dart';
+import '../manager/animation_manager.dart';
+import '../manager/input_manager.dart';
+import '../manager/asset_load_manager.dart';
+import '../manager/background_manager.dart';
+import '../service/asset_service.dart';
+import '../states/monster_state.dart';
+import '../controllers/game_loop_controller.dart';
+import '../exceptions/game_exceptions.dart';
 
-  static late ParallaxComponent parallax;
-  static late Adventurer adventurer;
-  static late Monster monster;
-  static late SpriteSheet allSpriteSheet,
-      monster_normal_Sheet,
-      monster_walk_Sheet,
-      monster_attack_Sheet,
-      monster_death_Sheet;
+class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollisionDetection {
+  // 移除靜態變量，使用實例變量
+  late Adventurer _adventurer;
+  late Monster _monster;
+
+  // 管理器和控制器
+  late GameManager _gameManager;
+  late AssetService _assetService;
+  late AnimationManager _animationManager;
+  late InputManager _inputManager;
+  late AssetLoadManager _assetLoadManager;
+  late BackgroundManager _backgroundManager;
+  late GameLoopController _gameLoopController;
+
+  // 公開存取器（為了向後兼容）
+  Adventurer get adventurer => _adventurer;
+  Monster get monster => _monster;
 
   @override
   Future<void> onLoad() async {
     super.onLoad();
-
-    /**
-     * BackGround
-     */
-    final layers = GameManager.bgLayerInfo.entries.map(
-      (entry) => loadParallaxLayer(
-        ParallaxImageData(entry.key),
-        velocityMultiplier: Vector2(entry.value, 0),
-      ),
-    );
-
-    parallax = ParallaxComponent(
-      parallax: Parallax(
-        await Future.wait(layers),
-        baseVelocity: Vector2(backGroundBaseVelocity, 0),
-      ),
-    );
-
-    parallax.parallax?.baseVelocity = Vector2.zero();
-    add(parallax);
-
-    /**
-     * Player
-     */
-    const String src = 'player.png';
-    await images.load(src);
-    var image = images.fromCache(src);
-    allSpriteSheet = SpriteSheet.fromColumnsAndRows(
-      image: image,
-      columns: 7,
-      rows: 18,
-    );
-
-    // 待機狀態
-    List<Sprite> normalSprites =
-        allSpriteSheet.getRowSprites(row: ZERO, start: ZERO, count: 4);
-    GameManager.normalAnimation = SpriteAnimation.spriteList(
-      normalSprites,
-      stepTime: 0.2,
-      loop: true,
-    );
-
-    // 劍攻擊
-    List<Sprite> attackSprites_One =
-        allSpriteSheet.getRowSprites(row: 6, start: ZERO, count: 6);
-    GameManager.swordAttackAni_One = SpriteAnimation.spriteList(
-      attackSprites_One,
-      stepTime: 0.08,
-      loop: false,
-    );
-
-    List<Sprite> attackSprites_Two =
-        allSpriteSheet.getRowSprites(row: 7, start: ZERO, count: 4);
-    GameManager.swordAttackAni_Two = SpriteAnimation.spriteList(
-      attackSprites_Two,
-      stepTime: 0.08,
-      loop: false,
-    );
-
-    List<Sprite> attackSprites_Three =
-        allSpriteSheet.getRowSprites(row: 7, start: 4, count: 3);
-    attackSprites_Three
-        .addAll(allSpriteSheet.getRowSprites(row: 8, start: ZERO, count: 3));
-    GameManager.swordAttackAni_Three = SpriteAnimation.spriteList(
-      attackSprites_Three,
-      stepTime: 0.08,
-      loop: false,
-    );
-
-    //TODO 拉弓射擊
-    const String bowSrc = 'bow_attack.png';
-    await images.load(bowSrc);
-    var bowImage = images.fromCache(bowSrc);
-    SpriteSheet bowSheet = SpriteSheet.fromColumnsAndRows(
-      image: bowImage,
-      columns: 4,
-      rows: 4,
-    );
-
-    List<Sprite> bowSprites =
-        bowSheet.getRowSprites(row: ZERO, start: ZERO, count: 4);
-    bowSprites.addAll(bowSheet.getRowSprites(row: 1, start: ZERO, count: 4));
-    bowSprites.addAll(bowSheet.getRowSprites(row: 2, start: ZERO, count: 1));
-    GameManager.bowAttackAni = SpriteAnimation.spriteList(
-      bowSprites,
-      stepTime: 0.1,
-      loop: false,
-    );
-
-    // 跑步
-    const String runSrc = 'run.png';
-    await images.load(runSrc);
-    var runImage = images.fromCache(runSrc);
-    SpriteSheet runSheet = SpriteSheet.fromColumnsAndRows(
-      image: runImage,
-      columns: 6,
-      rows: 1,
-    );
-
-    List<Sprite> runSprites =
-        runSheet.getRowSprites(row: ZERO, start: ZERO, count: 6);
-    GameManager.runAnimation = SpriteAnimation.spriteList(
-      runSprites,
-      stepTime: 0.1,
-      loop: true,
-    );
-
-    /**
-     * Player
-     */
-    adventurer = Adventurer(
-      animations: {
-        AdventurerAction.NORMAL: GameManager.normalAnimation,
-        AdventurerAction.RUN: GameManager.runAnimation,
-        AdventurerAction.BOW_ATTACK: GameManager.bowAttackAni,
-        AdventurerAction.SWORD_ATTACK_ONE: GameManager.swordAttackAni_One,
-        AdventurerAction.SWORD_ATTACK_TWO: GameManager.swordAttackAni_Two,
-        AdventurerAction.SWORD_ATTACK_THREE: GameManager.swordAttackAni_Three,
-      },
-      current: AdventurerAction.NORMAL,
-      position: Vector2(
-          GameManager.screenWidth * 0.3, GameManager.screenHeight * 0.8),
-      size: Vector2(50, 37) * 2,
-    );
-
-    add(adventurer);
-
-    /**
-     * Monster
-     */
-    const String monster_normal_Src = 'monster_normal.png';
-    await images.load(monster_normal_Src);
-    var monster_normal_Image = images.fromCache(monster_normal_Src);
-    monster_normal_Sheet = SpriteSheet.fromColumnsAndRows(
-      image: monster_normal_Image,
-      columns: 10,
-      rows: 1,
-    );
-
-    // 待機狀態
-    List<Sprite> monster_normal_Sprites =
-        monster_normal_Sheet.getRowSprites(row: ZERO, start: ZERO, count: 10);
-    GameManager.monsterNormal = SpriteAnimation.spriteList(
-      monster_normal_Sprites,
-      stepTime: 0.1,
-      loop: true,
-    );
-
-    // 走路
-    const String monster_walk_Src = 'monster_walk.png';
-    await images.load(monster_walk_Src);
-    var monster_walk_Image = images.fromCache(monster_walk_Src);
-    monster_walk_Sheet = SpriteSheet.fromColumnsAndRows(
-      image: monster_walk_Image,
-      columns: 9,
-      rows: 1,
-    );
-
-    List<Sprite> monster_walk_Sprites =
-        monster_walk_Sheet.getRowSprites(row: ZERO, start: ZERO, count: 9);
-    GameManager.monsterWalk = SpriteAnimation.spriteList(
-      monster_walk_Sprites,
-      stepTime: 0.1,
-      loop: true,
-    );
-
-    // 攻擊
-    const String monster_attack_Src = 'monster_attack.png';
-    await images.load(monster_attack_Src);
-    var monster_attack_Image = images.fromCache(monster_attack_Src);
-    monster_attack_Sheet = SpriteSheet.fromColumnsAndRows(
-      image: monster_attack_Image,
-      columns: 12,
-      rows: 1,
-    );
-
-    List<Sprite> monster_attack_Sprites =
-        monster_attack_Sheet.getRowSprites(row: ZERO, start: ZERO, count: 12);
-    GameManager.monsterAttack = SpriteAnimation.spriteList(
-      monster_attack_Sprites,
-      stepTime: 0.1,
-      loop: true,
-    );
-
-    // 死去
-    const String monster_death_Src = 'monster_death.png';
-    await images.load(monster_death_Src);
-    var monster_death_Image = images.fromCache(monster_death_Src);
-    monster_death_Sheet = SpriteSheet.fromColumnsAndRows(
-      image: monster_death_Image,
-      columns: 14,
-      rows: 1,
-    );
-
-    List<Sprite> monster_death_Sprites =
-        monster_death_Sheet.getRowSprites(row: ZERO, start: ZERO, count: 12);
-    GameManager.monsterDeath = SpriteAnimation.spriteList(
-      monster_death_Sprites,
-      stepTime: 0.1,
-      loop: false,
-    );
-
-    /**
-     * Monster
-     */
-    monster = Monster(
-      animations: {
-        MonsterAction.NORMAL: GameManager.monsterNormal,
-        MonsterAction.WALK: GameManager.monsterWalk,
-        MonsterAction.ATTACK: GameManager.monsterAttack,
-        MonsterAction.DEATH: GameManager.monsterDeath,
-      },
-      current: MonsterAction.NORMAL,
-      position: Vector2(
-          GameManager.screenWidth * 0.8, GameManager.screenHeight * 0.8),
-      size: Vector2(48, 37) * 2,
-    );
-
-    add(monster);
-
-    // 焦點
-    camera.followComponent(adventurer, relativeOffset: const Anchor(0.3, 0.8));
-
-    /**
-     * JoyStick
-     */
-    final knobPaint = BasicPalette.white.withAlpha(200).paint();
-    final backgroundPaint = BasicPalette.white.withAlpha(100).paint();
-    GameManager.joystick = JoystickComponent(
-      knob: CircleComponent(radius: 24, paint: knobPaint),
-      background: CircleComponent(radius: 50, paint: backgroundPaint),
-      margin: const EdgeInsets.only(left: 30, bottom: 40),
-    );
-    add(GameManager.joystick);
-
-    const String attackSrc = 'attack.png';
-    await images.load(attackSrc);
-    var attackImage = images.fromCache(attackSrc);
-    GameManager.attackButton = AttackComponent(Sprite(attackImage),
-        Vector2(GameManager.screenWidth * 0.9, GameManager.screenHeight * 0.8));
-    add(GameManager.attackButton..positionType = PositionType.viewport);
+    
+    try {
+      await _initializeManagers();
+      await _initializeGameLoopController();
+      await _loadGameResources();
+      await _setupGameComponents();
+    } catch (e, stackTrace) {
+      // 使用新的異常處理系統
+      throw GameStateException(
+        '遊戲初始化失敗',
+        'loading',
+        'loaded',
+        stackTrace: stackTrace,
+      );
+    }
   }
+
+  /// 初始化所有管理器
+  Future<void> _initializeManagers() async {
+    _gameManager = GameManager();
+    _assetService = AssetService(images);
+    _animationManager = AnimationManager(_assetService);
+    _inputManager = InputManager(
+      gameManager: _gameManager,
+      assetService: _assetService,
+    );
+    _assetLoadManager = AssetLoadManager(
+      gameManager: _gameManager,
+      assetService: _assetService,
+      animationManager: _animationManager,
+    );
+    _backgroundManager = BackgroundManager();
+  }
+
+  /// 初始化遊戲循環控制器
+  Future<void> _initializeGameLoopController() async {
+    _gameLoopController = GameLoopController(
+      gameManager: _gameManager,
+      inputManager: _inputManager,
+      updateParallaxVelocity: (velocity) => _backgroundManager.updateVelocity(velocity),
+      getGameSize: () => size,
+      getChildrenOfType: <T extends Component>() => children.whereType<T>(),
+    );
+  }
+
+  /// 載入遊戲資源
+  Future<void> _loadGameResources() async {
+    await _assetService.loadAllAssets();
+  }
+
+  /// 設置遊戲組件
+  Future<void> _setupGameComponents() async {
+    // 載入背景
+    final backgroundComponent = await _backgroundManager.loadBackground(
+      loadParallaxLayer,
+    );
+    add(backgroundComponent);
+
+    // 載入遊戲角色
+    _adventurer = await _assetLoadManager.loadPlayer();
+    add(_adventurer);
+
+    _monster = await _assetLoadManager.loadMonster();
+    add(_monster);
+
+    // 設置攝影機和輸入
+    _setupCamera();
+    _setupJoystickAndButton();
+  }
+
+
 
   @override
   void update(double dt) {
     super.update(dt);
 
-    bool moveLeft = GameManager.joystick.relativeDelta[0] < ZERO;
-    bool moveRight = GameManager.joystick.relativeDelta[0] > ZERO;
-
-    double playerVectorX =
-        (GameManager.joystick.relativeDelta * (playerSpeed * 1.2) * dt)[0];
-    double playerVectorY =
-        (GameManager.joystick.relativeDelta * (playerSpeed * 1.2) * dt)[1];
-
-    if (monster.current == MonsterAction.DEATH && monster.animation!.done()) {
-      monster.removeFromParent();
+    try {
+      // 使用遊戲循環控制器處理所有遊戲邏輯
+      _gameLoopController.handleMonsterLogic(_monster);
+      _gameLoopController.handleAttackSequence(_adventurer);
+      _gameLoopController.handlePlayerMovement(dt, _adventurer);
+    } catch (e, stackTrace) {
+      // 記錄錯誤但不讓遊戲崩潰
+      print('遊戲更新錯誤: $e');
+      print('堆疊追蹤: $stackTrace');
     }
-
-    if (monster.life > 0) {
-      final Iterable<Bullet> bullets = children.whereType<Bullet>();
-      for (Bullet bullet in bullets) {
-        if (bullet.isRemoving) {
-          continue;
-        }
-
-        if (!monster.containsPoint(bullet.absoluteCenter)) {
-          break;
-        }
-        bullet.removeFromParent();
-        monster.loss(200);
-      }
-    }
-
-    if ((GameManager.isAttack) && adventurer.animation!.done()) {
-      adventurer.animation!.reset();
-
-      if (GameManager.nextAttackStep) {
-        switch (adventurer.current) {
-          case AdventurerAction.SWORD_ATTACK_ONE:
-            adventurer.current = AdventurerAction.SWORD_ATTACK_TWO;
-            break;
-
-          case AdventurerAction.SWORD_ATTACK_TWO:
-            adventurer.current = AdventurerAction.SWORD_ATTACK_THREE;
-            break;
-
-          case AdventurerAction.SWORD_ATTACK_THREE:
-            adventurer.current = AdventurerAction.SWORD_ATTACK_ONE;
-            break;
-
-          default:
-            adventurer.current = AdventurerAction.SWORD_ATTACK_ONE;
-            break;
-        }
-        GameManager.nextAttackStep = false;
-        return;
-      }
-
-      GameManager.isAttack = false;
-      return;
-    }
-
-    if (GameManager.isAttack) {
-      return;
-    }
-
-    // 透過joystick 讓角色進行x軸上的位移
-    if (!GameManager.joystick.delta.isZero()) {
-      adventurer.current = AdventurerAction.RUN;
-
-      if (moveLeft && adventurer.x > 0 && !GameManager.isLeftCollisionBlock) {
-        adventurer.position.add(Vector2(playerVectorX, 0));
-      }
-
-      if (moveRight &&
-          adventurer.x < size[0] &&
-          !GameManager.isRightCollisionBlock) {
-        adventurer.position.add(Vector2(playerVectorX, 0));
-      }
-
-      // 角色左右翻轉
-      if (moveRight && GameManager.adventurerFlipped) {
-        GameManager.adventurerFlipped = false;
-        adventurer.flipHorizontallyAroundCenter();
-      }
-
-      if (moveLeft && !GameManager.adventurerFlipped) {
-        GameManager.adventurerFlipped = true;
-        adventurer.flipHorizontallyAroundCenter();
-      }
-
-      // 背景左右翻轉
-      if (moveRight && !GameManager.isRightCollisionBlock) {
-        parallax.parallax?.baseVelocity = Vector2(backGroundBaseVelocity, 0);
-      } else if (moveLeft && !GameManager.isLeftCollisionBlock) {
-        parallax.parallax?.baseVelocity = Vector2(-backGroundBaseVelocity, 0);
-      } else {
-        parallax.parallax?.baseVelocity = Vector2.zero();
-      }
-      return;
-    }
-
-
-    if (GameManager.isAttack) {
-      return;
-    }
-    adventurer.current = AdventurerAction.NORMAL;
-    parallax.parallax?.baseVelocity = Vector2.zero();
   }
-}
 
-// Extension SpriteSheet
-extension SpriteSheetExt on SpriteSheet {
-  /// 獲得指定索引區間 [Sprite] 列表
-  /// [row] : 第幾行
-  /// [start] : 第幾個開始
-  /// [count] : 有幾個
-  List<Sprite> getRowSprites({
-    required int row,
-    int start = 0,
-    required count,
-  }) {
-    return List.generate(count, (i) => getSprite(row, start + i)).toList();
+  void _setupJoystickAndButton() {
+    // 設置搖桿
+    _inputManager.setupJoystick();
+    add(_inputManager.joystick);
+
+    // 設置攻擊按鈕（需要額外的依賴）
+    try {
+      _inputManager.setupAttackButton(
+        adventurer: _adventurer,
+        stopBackgroundScrolling: () => _backgroundManager.stopScrolling(),
+      );
+      
+      if (_inputManager.attackButton != null) {
+        _inputManager.attackButton!.positionType = PositionType.viewport;
+        add(_inputManager.attackButton!);
+      }
+    } catch (e) {
+      print('設置攻擊按鈕時發生錯誤: $e');
+    }
+  }
+
+  void _setupCamera() {
+    camera.followComponent(_adventurer, relativeOffset: const Anchor(0.3, 0.8));
   }
 }
