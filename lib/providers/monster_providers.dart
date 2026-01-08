@@ -35,7 +35,7 @@ class MonsterStateNotifier extends StateNotifier<MonsterState> {
 
   /// 受到傷害
   void takeDamage(double damage) {
-    final newHealth = state.health - damage;
+    final newHealth = (state.health - damage).clamp(0.0, MonsterState.defaultHealth);
     updateHealth(newHealth);
     if (newHealth <= 0) {
       updateAction(MonsterAction.death);

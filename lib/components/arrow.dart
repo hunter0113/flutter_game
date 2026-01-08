@@ -1,6 +1,7 @@
 import 'package:flame/components.dart';
+import 'package:flame/collisions.dart';
 
-class Arrow extends SpriteComponent {
+class Arrow extends SpriteComponent with CollisionCallbacks {
   double _speed = 250;
   final double maxRange;
   final Vector2 direction;
@@ -12,6 +13,13 @@ class Arrow extends SpriteComponent {
   }) : super(sprite: sprite);
 
   double _length = 0;
+
+  @override
+  Future<void> onLoad() async {
+    super.onLoad();
+    // 添加碰撞範圍，預設不顯示
+    add(RectangleHitbox()..debugMode = false);
+  }
 
   @override
   void update(double dt) {

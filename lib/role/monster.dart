@@ -24,9 +24,9 @@ class Monster extends SpriteAnimationGroupComponent<MonsterAction>
 
   @override
   Future<void> onLoad() async {
-    // debugMode
-    add(CircleHitbox()..debugMode = true);
-    add(CircleHitbox());
+    // debugMode - 預設為 false，可通過按鈕切換顯示
+    add(CircleHitbox()..debugMode = false);
+    add(CircleHitbox()..debugMode = false);
 
     initBloodBar(
       lifeColor: GameConstants.monster.healthBarColor,

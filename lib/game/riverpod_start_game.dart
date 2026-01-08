@@ -15,6 +15,7 @@ import '../service/asset_service.dart';
 import '../controllers/riverpod_game_loop_controller.dart';
 import '../exceptions/game_exceptions.dart';
 import '../providers/providers.dart';
+import '../button/debug_collision_button.dart';
 
 /// 使用 Riverpod 狀態管理的遊戲類
 /// 這是對原始 StartGame 的完全重構，使用 Riverpod 進行狀態管理
@@ -208,6 +209,19 @@ class RiverpodStartGame extends FlameGame with HasDraggables, HasTappables, HasC
       }
     } catch (e) {
       print('設置攻擊按鈕時發生錯誤: $e');
+    }
+
+    // 設置調試碰撞範圍按鈕（放在左上角）
+    try {
+      final debugButton = DebugCollisionButton(
+        adventurer: _adventurer,
+        monster: _monster,
+        position: Vector2(0, 0), // 左上角
+      );
+      debugButton.positionType = PositionType.viewport;
+      add(debugButton);
+    } catch (e) {
+      print('設置調試碰撞按鈕時發生錯誤: $e');
     }
   }
 
