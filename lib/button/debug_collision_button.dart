@@ -29,7 +29,7 @@ class DebugCollisionButton extends RectangleComponent with Tappable, HasGameRef 
     
     // 添加文字標籤
     final text = TextComponent(
-      text: '碰撞',
+      text: '顯示碰撞範圍',
       textRenderer: TextPaint(
         style: const TextStyle(
           color: Colors.white,

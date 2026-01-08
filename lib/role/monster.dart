@@ -8,6 +8,11 @@ import 'package:flutter_game/states/monster_state.dart';
 class Monster extends SpriteAnimationGroupComponent<MonsterAction>
     with CollisionCallbacks, Liveable {
   late ShapeHitbox hitBox;
+  
+  // 移動相關變量
+  Vector2 _initialPosition = Vector2.zero();
+  double _moveDirection = 1.0; // 1.0 向右，-1.0 向左
+  bool _isMoving = false;
 
   Monster({
     required Map<MonsterAction, SpriteAnimation>? animations,
@@ -20,7 +25,28 @@ class Monster extends SpriteAnimationGroupComponent<MonsterAction>
           position: position,
           anchor: Anchor.center,
           current: current,
-        );
+        ) {
+    _initialPosition = position;
+  }
+  
+  /// 獲取初始位置
+  Vector2 get initialPosition => _initialPosition;
+  
+  /// 獲取移動方向
+  double get moveDirection => _moveDirection;
+  
+  /// 設置移動方向
+  void setMoveDirection(double direction) {
+    _moveDirection = direction;
+  }
+  
+  /// 是否正在移動
+  bool get isMoving => _isMoving;
+  
+  /// 設置移動狀態
+  void setMoving(bool moving) {
+    _isMoving = moving;
+  }
 
   @override
   Future<void> onLoad() async {

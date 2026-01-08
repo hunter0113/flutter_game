@@ -134,7 +134,7 @@ class GameLoopController {
   }
 
   /// 處理怪物相關邏輯
-  void handleMonsterLogic(Monster monster) {
+  void handleMonsterLogic(Monster monster, {double? dt}) {
     // 檢查怪物死亡
     if (monster.current == MonsterAction.death && monster.animation!.done()) {
       monster.removeFromParent();
@@ -142,8 +142,72 @@ class GameLoopController {
     }
 
     // 處理怪物存活時的邏輯
-    if (monster.life > 0) {
+    if (monster.life > 0 && dt != null) {
       _processArrowCollisions(monster);
+      _updateMonsterAI(monster, dt);
+    }
+  }
+
+  /// 更新怪物 AI 邏輯
+  void _updateMonsterAI(Monster monster, double dt) {
+    // 如果怪物正在死亡，不執行移動
+    if (monster.current == MonsterAction.death) {
+      return;
+    }
+    
+    // 自動左右移動邏輯
+    _handleMonsterAutoMovement(monster, dt);
+  }
+
+  /// 處理怪物自動移動
+  void _handleMonsterAutoMovement(Monster monster, double dt) {
+    final moveSpeed = GameConstants.monster.moveSpeed;
+    final moveRange = GameConstants.monster.moveRange;
+    final initialX = monster.initialPosition.x;
+    final currentX = monster.position.x;
+    
+    // 計算移動距離
+    final moveDistance = moveSpeed * dt * monster.moveDirection;
+    final newX = currentX + moveDistance;
+    
+    // 檢查是否超出移動範圍
+    final leftBound = initialX - moveRange;
+    final rightBound = initialX + moveRange;
+    
+    // 如果超出右邊界，轉向左
+    if (newX >= rightBound) {
+      monster.setMoveDirection(-1.0);
+      monster.setMoving(true);
+      monster.current = MonsterAction.walk;
+      // 確保不超出邊界
+      monster.position.x = rightBound;
+    }
+    // 如果超出左邊界，轉向右
+    else if (newX <= leftBound) {
+      monster.setMoveDirection(1.0);
+      monster.setMoving(true);
+      monster.current = MonsterAction.walk;
+      // 確保不超出邊界
+      monster.position.x = leftBound;
+    }
+    // 正常移動
+    else {
+      monster.setMoving(true);
+      monster.position.x = newX;
+      monster.current = MonsterAction.walk;
+    }
+    
+    // 根據移動方向翻轉怪物
+    if (monster.moveDirection > 0) {
+      // 向右移動，不翻轉
+      if (monster.scale.x < 0) {
+        monster.flipHorizontallyAroundCenter();
+      }
+    } else {
+      // 向左移動，翻轉
+      if (monster.scale.x > 0) {
+        monster.flipHorizontallyAroundCenter();
+      }
     }
   }
 

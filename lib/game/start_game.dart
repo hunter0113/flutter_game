@@ -115,7 +115,7 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
 
     try {
       // 使用遊戲循環控制器處理所有遊戲邏輯
-      _gameLoopController.handleMonsterLogic(_monster);
+      _gameLoopController.handleMonsterLogic(_monster, dt: dt);
       _gameLoopController.handleAttackSequence(_adventurer);
       _gameLoopController.handlePlayerMovement(dt, _adventurer);
     } catch (e, stackTrace) {
