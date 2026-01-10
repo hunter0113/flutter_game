@@ -54,6 +54,8 @@ class MonsterSettings {
   final Vector2 size = Vector2(48, 37);
   final double initialHealth = 1000.0;
   final Color healthBarColor = Colors.red;
+  final double moveSpeed = 30.0; // 怪物移動速
+  final double moveRange = 100.0; // 怪物左右移動範圍
 
   MonsterSettings();
 }

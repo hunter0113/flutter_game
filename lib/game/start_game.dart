@@ -14,6 +14,7 @@ import '../service/asset_service.dart';
 import '../states/monster_state.dart';
 import '../controllers/game_loop_controller.dart';
 import '../exceptions/game_exceptions.dart';
+import '../button/debug_collision_button.dart';
 
 class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollisionDetection {
   // 移除靜態變量，使用實例變量
@@ -114,7 +115,7 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
 
     try {
       // 使用遊戲循環控制器處理所有遊戲邏輯
-      _gameLoopController.handleMonsterLogic(_monster);
+      _gameLoopController.handleMonsterLogic(_monster, dt: dt);
       _gameLoopController.handleAttackSequence(_adventurer);
       _gameLoopController.handlePlayerMovement(dt, _adventurer);
     } catch (e, stackTrace) {
@@ -142,6 +143,19 @@ class StartGame extends FlameGame with HasDraggables, HasTappables, HasCollision
       }
     } catch (e) {
       print('設置攻擊按鈕時發生錯誤: $e');
+    }
+
+    // 設置調試碰撞範圍按鈕（放在左上角）
+    try {
+      final debugButton = DebugCollisionButton(
+        adventurer: _adventurer,
+        monster: _monster,
+        position: Vector2(0, 0), // 左上角
+      );
+      debugButton.positionType = PositionType.viewport;
+      add(debugButton);
+    } catch (e) {
+      print('設置調試碰撞按鈕時發生錯誤: $e');
     }
   }
 

@@ -86,6 +86,10 @@ mixin Liveable on PositionComponent {
 
     // 傷害量
     currentLife -= point;
+    // 確保血量不會低於0
+    if (currentLife < 0) {
+      currentLife = 0;
+    }
 
     _damageText.addDamage(-point.toInt(),isCrit: isCrit);
     _updateLifeText();
@@ -94,7 +98,6 @@ mixin Liveable on PositionComponent {
       return;
     }
 
-    currentLife = 0;
     onDied();
   }
 

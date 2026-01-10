@@ -30,9 +30,9 @@ class Adventurer extends SpriteAnimationGroupComponent<AdventurerAction>
 
   @override
   Future<void> onLoad() async {
-    // debugMode
-    add(CircleHitbox()..debugMode = true);
-    add(CircleHitbox());
+    // debugMode - 預設為 false，可通過按鈕切換顯示
+    add(CircleHitbox()..debugMode = false);
+    add(CircleHitbox()..debugMode = false);
 
     // 血條
     initBloodBar(
