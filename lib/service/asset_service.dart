@@ -25,6 +25,13 @@ class AssetService {
     },
   };
 
+  // 影片資源路徑
+  static const Map<String, String> _VideoAssets = {
+    'attack': 'assets/攻擊.mp4',
+    'move': 'assets/移動.mp4',
+    'debug': 'assets/調試模式.mp4',
+  };
+
   AssetService(this.images);
 
   // 加載所有遊戲資源
@@ -86,4 +93,12 @@ class AssetService {
     final assetKey = _Assets[category]![type]!;
     return images.fromCache(assetKey);
   }
+
+  // 取得影片資源路徑
+  static String getVideoPath(String type) {
+    return _VideoAssets[type] ?? '';
+  }
+
+  // 取得所有影片資源路徑
+  static Map<String, String> get allVideoAssets => _VideoAssets;
 } 

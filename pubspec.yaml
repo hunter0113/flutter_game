@@ -28,4 +28,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/攻擊.mp4
+    - assets/移動.mp4
+    - assets/調試模式.mp4
 
